@@ -1,5 +1,6 @@
-import { Ticket } from '../models/index.js';
+import { Ticket, Visit } from '../models/index.js';
 import path from 'path';
+import { Op } from 'sequelize';
 
 export default {
   async save(req, res) {
@@ -96,6 +97,74 @@ export default {
     try {
       const totalSales = await Ticket.sum('total');
       return res.status(200).send({ totalSales: totalSales ?? 0 });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getTodaySales(req, res) {
+    try {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const startOfNextDay = new Date(startOfDay);
+      startOfNextDay.setDate(startOfDay.getDate() + 1);
+
+      const totalToday = await Ticket.sum('total', {
+        include: [{
+          model: Visit,
+          required: true,
+          where: {
+            datetime_end: {
+              [Op.gte]: startOfDay,
+              [Op.lt]:  startOfNextDay
+            }
+          }
+        }]
+      });
+
+      return res.status(200).send({ totalToday: totalToday ?? 0 });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getLast7DaysSales(req, res) {
+    try {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const labels = [];
+      const data = [];
+
+      for (let i = 6; i >= 0; i--) {
+        const dayStart = new Date(today);
+        dayStart.setDate(today.getDate() - i);
+
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayStart.getDate() + 1);
+
+        const label = dayStart.toISOString().slice(0,10);
+        labels.push(label);
+
+        const sum = await Ticket.sum('total', {
+          include: [{
+            model: Visit,
+            required: true,
+            where: {
+              datetime_end: {
+                [Op.gte]: dayStart,
+                [Op.lt]:  dayEnd
+              }
+            }
+          }]
+        });
+
+        data.push(sum ?? 0);
+      }
+
+      return res.status(200).send({ labels, data });
     } catch (err) {
       console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });

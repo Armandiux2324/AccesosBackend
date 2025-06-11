@@ -8,6 +8,7 @@ router.post('/visitors', mdAuth, visitorsController.save);
 router.put('/visitors', mdAuth, visitorsController.update);
 router.get('/visitors', mdAuth, visitorsController.getAll);
 router.get('/visitor',  mdAuth, visitorsController.getOne);
+router.get('/today-visitors',  mdAuth, visitorsController.getTodayCount);
 router.delete('/visitors', mdAuth, visitorsController.delete);
 
 export default router;

@@ -1,4 +1,5 @@
-import { Visitor } from '../models/index.js';
+import { Visitor, Visit } from '../models/index.js';
+import { Op } from 'sequelize';
 
 export default {
   async save(req, res) {
@@ -85,6 +86,33 @@ export default {
       }
       return res.status(200).send({ data: visitor });
     } catch (err) {
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getTodayCount(req, res) {
+    try {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const startOfNextDay = new Date(startOfDay);
+      startOfNextDay.setDate(startOfDay.getDate() + 1);
+
+      const count = await Visitor.count({
+        include: [{
+          model: Visit,
+          required: true,
+          where: {
+            datetime_end: {
+              [Op.gte]: startOfDay,
+              [Op.lt]:  startOfNextDay
+            }
+          }
+        }]
+      });
+
+      return res.status(200).send({ todayCount: count });
+    } catch (err) {
+      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   }
