@@ -8,10 +8,6 @@ export default {
     const { visit_id, payment_id, total } = req.body;
     let qr = 'Sin imagen';
 
-    if (!visit_id || !payment_id || total == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
-
     if (req.files && req.files.qr) {
       const file_path = req.files.qr.path;
       const file_name = path.basename(file_path);
@@ -32,9 +28,6 @@ export default {
 
   async update(req, res) {
     const { id, visit_id, payment_id, total } = req.body;
-    if (!id || !visit_id || !payment_id || total == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
 
     try {
       const [updated] = await Ticket.update(
@@ -52,9 +45,6 @@ export default {
 
   async delete(req, res) {
     const { id } = req.body;
-    if (!id) {
-      return res.status(400).send({ message: 'Falta el ID del ticket' });
-    }
 
     try {
       const deleted = await Ticket.destroy({ where: { id } });
@@ -78,9 +68,6 @@ export default {
 
   async getOne(req, res) {
     const { id } = req.body;
-    if (!id) {
-      return res.status(400).send({ message: 'Falta el ID del ticket' });
-    }
 
     try {
       const ticket = await Ticket.findByPk(id);

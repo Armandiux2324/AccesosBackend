@@ -45,9 +45,6 @@ export default {
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
-        if (!id || !password) {
-            return res.status(400).send({ message: 'Todos los campos son obligatorios' });
-        }
 
         try {
             const hash = await bcrypt.hash(password, 10);
@@ -71,9 +68,6 @@ export default {
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
-        if (!name || !username || !email || !password || !role) {
-            return res.status(400).send({ message: 'Todos los campos son obligatorios' });
-        }
 
         try {
             const hash = await bcrypt.hash(password, 10);
@@ -89,9 +83,6 @@ export default {
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
-        }
-        if (!id || !name || !username || !email || !role) {
-            return res.status(400).send({ message: 'Todos los campos son obligatorios' });
         }
 
         try {
@@ -114,9 +105,6 @@ export default {
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
-        if (!id) {
-            return res.status(400).send({ message: 'Falta el ID del usuario' });
-        }
 
         try {
             const deleted = await User.destroy({ where: { id } });
@@ -133,7 +121,9 @@ export default {
         try {
             let users;
             if (['Administrador', 'Directora'].includes(req.user.role)) {
-                users = await User.findAll();
+                users = await User.findAll({
+                    attributes: { exclude: ['password'] }
+                });
             } else {
                 users = await User.findAll({ where: { id: req.user.id } });
             }

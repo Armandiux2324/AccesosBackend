@@ -7,9 +7,6 @@ export default {
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
-    if (!type || price == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
 
     try {
       await Price.create({ type, price });
@@ -24,9 +21,6 @@ export default {
 
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-    if (!id || !type || price == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
     }
 
     try {
@@ -48,9 +42,6 @@ export default {
 
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-    if (!id) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
     }
 
     try {
@@ -75,6 +66,7 @@ export default {
 
   async getOne(req, res) {
     const { id } = req.body;
+    
     try {
       const price = await Price.findByPk(id);
       return res.status(200).send({ data: price });

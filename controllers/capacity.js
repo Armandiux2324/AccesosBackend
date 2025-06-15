@@ -7,9 +7,6 @@ export default {
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
-    if (capacity == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
 
     try {
       await Capacity.create({ capacity });
@@ -23,9 +20,6 @@ export default {
     const { capacity } = req.body;
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-    if (capacity == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
     }
 
     try {

@@ -1,15 +1,21 @@
 import { Router } from 'express';
 import { Auth as mdAuth } from '../middlewares/auth.js';
 import visitorsController from '../controllers/visitors.js';
+import { validateBody } from '../middlewares/validate.js';
+import {
+  createVisitorSchema,
+  updateVisitorSchema,
+  idVisitorSchema
+} from '../validators/visitors.validator.js';
 
 const router = Router();
 
-router.post('/visitors', mdAuth, visitorsController.save);
-router.put('/visitors', mdAuth, visitorsController.update);
+router.post('/visitors', mdAuth, validateBody(createVisitorSchema), visitorsController.save);
+router.put('/visitors', mdAuth, validateBody(updateVisitorSchema), visitorsController.update);
 router.get('/visitors', mdAuth, visitorsController.getAll);
-router.get('/visitor',  mdAuth, visitorsController.getOne);
+router.get('/visitor',  mdAuth, validateBody(idVisitorSchema), visitorsController.getOne);
 router.get('/today-visitors',  mdAuth, visitorsController.getTodayCount);
-router.delete('/visitors', mdAuth, visitorsController.delete);
+router.delete('/visitors', mdAuth, validateBody(idVisitorSchema), visitorsController.delete);
 
 export default router;
 

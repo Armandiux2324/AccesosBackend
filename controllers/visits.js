@@ -3,9 +3,6 @@ import { Visit } from '../models/index.js';
 export default {
   async updateDatetimeEnd(req, res) {
     const { id, datetime_end } = req.body;
-    if (!id || !datetime_end) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
 
     try {
       const visit = await Visit.findByPk(id);
@@ -32,9 +29,7 @@ export default {
   
   async save(req, res) {
     const { contact, datetime_begin } = req.body;
-    if (!contact || !datetime_begin) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
+
     try {
       await Visit.create({ contact, datetime_begin });
       return res.status(201).send({ message: 'Visita agregada' });
@@ -45,9 +40,7 @@ export default {
 
   async update(req, res) {
     const { id, contact, datetime_begin, datetime_end, duration_minutes } = req.body;
-    if (!id || !contact || !datetime_begin || !datetime_end || duration_minutes == null) {
-      return res.status(400).send({ message: 'Rellena todos los campos' });
-    }
+ 
     try {
       const [updated] = await Visit.update(
         { contact, datetime_begin, datetime_end, duration_minutes },
@@ -64,9 +57,7 @@ export default {
 
   async delete(req, res) {
     const { id } = req.body;
-    if (!id) {
-      return res.status(400).send({ message: 'Falta el ID de la visita' });
-    }
+
     try {
       const deleted = await Visit.destroy({ where: { id } });
       if (!deleted) {
@@ -89,9 +80,7 @@ export default {
 
   async getOne(req, res) {
     const { id } = req.body;
-    if (!id) {
-      return res.status(400).send({ message: 'Falta el ID de la visita' });
-    }
+    
     try {
       const visit = await Visit.findByPk(id);
       if (!visit) {
