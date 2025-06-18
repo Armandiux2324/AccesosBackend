@@ -15,7 +15,7 @@ export default {
                         { email: identificator }
                     ]
                 }
-                });
+            });
             if (!user) {
                 return res.status(400).send({ message: 'Credenciales inválidas' });
             }
@@ -62,7 +62,6 @@ export default {
     },
 
     async save(req, res) {
-        console.log(req)
         const { name, username, email, password, role } = req.body;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
@@ -79,6 +78,7 @@ export default {
     },
 
     async update(req, res) {
+        console.log(req);
         const { id, name, username, email, role } = req.body;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
@@ -100,7 +100,7 @@ export default {
     },
 
     async delete(req, res) {
-        const { id } = req.body;
+        const { id } = req.query;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
@@ -122,6 +122,9 @@ export default {
             let users;
             if (['Administrador', 'Directora'].includes(req.user.role)) {
                 users = await User.findAll({
+                    where: {
+                        id: { [Op.ne]: req.user.sub }
+                    },
                     attributes: { exclude: ['password'] }
                 });
             } else {
@@ -136,11 +139,35 @@ export default {
     async getOne(req, res) {
         try {
             let user;
-            user = await User.findOne({ where: { id: req.body.id } });
+            user = await User.findOne({
+                where: { id: req.query.id },
+                attributes: { exclude: ['password'] }
+            });
             return res.status(200).send({ data: user });
         } catch (err) {
             return res.status(500).send({ message: 'Intenta más tarde' });
         }
-    }
-} 
+    },
+
+    async search(req, res) {
+        console.log(req);
+        const { parameter } = req.query;
+        try {
+            const users = await User.findAll({
+                where: {
+                    [Op.or]: [
+                        { username: { [Op.like]: `%${parameter}%` } },
+                        { email: { [Op.like]: `%${parameter}%` } }
+                    ],
+                    id: { [Op.ne]: req.user.sub }
+                },
+                attributes: { exclude: ['password'] }
+            });
+            return res.status(200).send({ data: users });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send({ message: 'Intenta más tarde' });
+        }
+    },
+}
 

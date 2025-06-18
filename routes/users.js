@@ -17,7 +17,8 @@ router.put('/users', mdAuth, validateBody(updateSchema), usersController.update)
 router.put('/users-pass', mdAuth, validateBody(passwordSchema), usersController.updatePassword);
 router.delete('/users', mdAuth, validateBody(deleteSchema), usersController.delete);
 router.get('/users', mdAuth, usersController.getAll);
-router.get('/user', mdAuth, validateBody(deleteSchema), usersController.getOne);
+router.get('/search-users', mdAuth, usersController.search);
+router.get('/user', mdAuth, usersController.getOne);
 router.post('/login', validateBody(loginSchema), usersController.login);
 
 export default router;

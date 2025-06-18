@@ -23,7 +23,7 @@ export const updateSchema = yup.object({
   name: yup.string().required('El nombre es obligatorio'),
   username: yup.string().required('El nombre de usuario es obligatorio'),
   email: yup.string().email('Email inválido').required('El correo es obligatorio'),
-  role: yup.string().oneOf(['Administrador', 'Directora', 'Usuario'], 'Rol inválido').required('El rol es obligatorio')
+  role: yup.string().oneOf(['Administrador', 'Directora', 'Taquilla'], 'Rol inválido').required('El rol es obligatorio')
 });
 
 export const deleteSchema = yup.object({
