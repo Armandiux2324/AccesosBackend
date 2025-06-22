@@ -7,7 +7,7 @@ import cors from 'cors';                     // Permitir peticiones
 
 //Rutas
 import usersRoutes   from './routes/users.js';
-import capacityRoutes   from './routes/capacity.js';
+import settingsRoutes   from './routes/settings.js';
 import pricesRoutes  from './routes/prices.js';
 import visitsRoutes  from './routes/visits.js';
 import visitorsRoutes from './routes/visitors.js';
@@ -36,7 +36,7 @@ app.use(bodyParser.json());
 
 //Rutas agrupadas
 app.use(usersRoutes);
-app.use(capacityRoutes);
+app.use(settingsRoutes);
 app.use(pricesRoutes);
 app.use(visitsRoutes);
 app.use(visitorsRoutes);

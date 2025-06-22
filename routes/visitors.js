@@ -5,7 +5,8 @@ import { validateBody } from '../middlewares/validate.js';
 import {
   createVisitorSchema,
   updateVisitorSchema,
-  idVisitorSchema
+  idVisitorSchema,
+  dateRangeSchema
 } from '../validators/visitors.validator.js';
 
 const router = Router();
@@ -14,7 +15,12 @@ router.post('/visitors', mdAuth, validateBody(createVisitorSchema), visitorsCont
 router.put('/visitors', mdAuth, validateBody(updateVisitorSchema), visitorsController.update);
 router.get('/visitors', mdAuth, visitorsController.getAll);
 router.get('/visitor',  mdAuth, validateBody(idVisitorSchema), visitorsController.getOne);
+router.get('/visitors-by-type',  mdAuth, visitorsController.getVisitorsByPriceTypeTotal);
+router.get('/visitors-by-gender',  mdAuth, visitorsController.getVisitorsByGenderTotal);
+router.get('/visitors-by-age',  mdAuth, visitorsController.getVisitorsByAgeGroupTotal);
+router.get('/date-range-visitors',  mdAuth, validateBody(dateRangeSchema), visitorsController.getDailyVisitors);
 router.get('/today-visitors',  mdAuth, visitorsController.getTodayCount);
+
 router.delete('/visitors', mdAuth, validateBody(idVisitorSchema), visitorsController.delete);
 
 export default router;

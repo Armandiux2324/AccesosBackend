@@ -16,15 +16,23 @@ CREATE TABLE visits (
 );
 
 CREATE TABLE visitors (
-  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL AUTO_INCREMENT,
   age INT NOT NULL,
   gender ENUM('Masculino','Femenino','Otro') NOT NULL,
   school VARCHAR(150) NOT NULL,
   township VARCHAR(100) NULL,
-  unit_price FLOAT NOT NULL,
+  price_id INT NOT NULL,
   visit_id INT NOT NULL,
-  INDEX fk_visitor_visit_idx (visit_id),
-  FOREIGN KEY (visit_id)
+  PRIMARY KEY (id),
+  INDEX idx_visitors_price  (price_id),
+  INDEX idx_visitors_visit  (visit_id),
+  CONSTRAINT fk_visitors_price
+    FOREIGN KEY (price_id)
+    REFERENCES prices(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_visitors_visit
+    FOREIGN KEY (visit_id)
     REFERENCES visits(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
@@ -61,7 +69,7 @@ ALTER TABLE tickets
 
 CREATE TABLE prices (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  type ENUM('Niño','Niña','Adulto','Adulta','Adulto mayor','Adulta mayor','Discapacitada','Discapacitado','Acompañante (H)', 'Acompañante (M)') NOT NULL,
+  type ENUM('Niño','Adulto,'Adulto mayor','Discapacitado','Acompañante') NOT NULL,
   price FLOAT NOT NULL
 );
 

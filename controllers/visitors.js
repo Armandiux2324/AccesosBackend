@@ -1,5 +1,5 @@
-import { Visitor, Visit } from '../models/index.js';
-import { Op } from 'sequelize';
+import { Visitor, Visit, Price } from '../models/index.js';
+import { Op, fn, col, literal } from 'sequelize';
 
 export default {
   async save(req, res) {
@@ -91,6 +91,123 @@ export default {
     } catch (err) {
       console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getDailyVisitors(req, res) {
+    try {
+      const { from, to } = req.body;
+      console.log('from:', from, 'to:', to);
+      const startDate = new Date(String(from));
+      const endDate = new Date(String(to));
+
+      const data = await Visitor.findAll({
+        include: [{
+          model: Visit,
+          required: true,
+          where: { datetime_begin: { [Op.between]: [startDate, endDate] } },
+          attributes: []
+        }],
+        attributes: [
+          [fn('DATE', col('visit.datetime_begin')), 'date'],
+          [fn('COUNT', col('visitor.id')), 'count']
+        ],
+        group: [fn('DATE', col('visit.datetime_begin'))],
+        order: [[fn('DATE', col('visit.datetime_begin')), 'ASC']]
+      });
+
+      const result = data.map(item => ({
+        date: item.getDataValue('date'),
+        count: parseInt(item.getDataValue('count'), 10)
+      }));
+
+      return res.status(200).send({ data: result });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: 'Error obteniendo visitantes diarios' });
+    }
+  },
+
+  async getVisitorsByPriceTypeTotal(req, res) {
+    try {
+      const data = await Visitor.findAll({
+        include: [{
+          model: Price,
+          as: 'price',
+          attributes: []
+        }],
+        attributes: [
+          [col('price.type'), 'ticketType'],
+          [fn('COUNT', col('Visitor.id')), 'count']
+        ],
+        group: [col('price.type')]
+      });
+
+      const result = data.map(item => ({
+        ticketType: item.getDataValue('ticketType'),
+        count: parseInt(item.getDataValue('count'), 10)
+      }));
+
+      return res.status(200).send({ data: result });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: 'Error obteniendo visitantes por tipo de boleto (prices)' });
+    }
+  },
+
+  async getVisitorsByGenderTotal(req, res) {
+    try {
+      const data = await Visitor.findAll({
+        attributes: [
+          'gender',
+          [fn('COUNT', col('id')), 'count']
+        ],
+        group: ['gender']
+      });
+
+      const result = data.map(item => ({
+        gender: item.getDataValue('gender'),
+        count: parseInt(item.getDataValue('count'), 10)
+      }));
+
+      return res.status(200).send({ data: result });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: 'Error obteniendo visitantes por género' });
+    }
+  },
+
+  async getVisitorsByAgeGroupTotal(req, res) {
+    try {
+      const caseExpr = `
+        CASE
+          WHEN age BETWEEN 0 AND 10 THEN '0-10'
+          WHEN age BETWEEN 11 AND 20 THEN '11-20'
+          WHEN age BETWEEN 21 AND 30 THEN '21-30'
+          WHEN age BETWEEN 31 AND 40 THEN '31-40'
+          WHEN age BETWEEN 41 AND 50 THEN '41-50'
+          WHEN age BETWEEN 51 AND 60 THEN '51-60'
+          ELSE '60+'
+        END
+      `;
+
+      const data = await Visitor.findAll({
+        attributes: [
+          [literal(caseExpr), 'ageGroup'],
+          [fn('COUNT', col('id')), 'count']
+        ],
+        group: [literal('ageGroup')]
+      });
+
+      const result = data.map(item => ({
+        ageGroup: item.getDataValue('ageGroup'),
+        count: parseInt(item.getDataValue('count'), 10)
+      }));
+
+      return res.status(200).send({ data: result });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: 'Error obteniendo visitantes por grupo de edad' });
     }
   }
 };

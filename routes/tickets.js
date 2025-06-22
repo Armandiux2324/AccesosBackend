@@ -19,6 +19,7 @@ router.get('/ticket', mdAuth, validateBody(idTicketSchema), ticketsController.ge
 router.get('/total-sales', mdAuth, ticketsController.getTotalSales);
 router.get('/today-sales', mdAuth, ticketsController.getTodaySales);
 router.get('/week-sales', mdAuth, ticketsController.getLast7DaysSales);
+router.get('/active-visitors', mdAuth, ticketsController.getActiveVisitorsCount);
 router.delete('/tickets', mdAuth, validateBody(idTicketSchema), ticketsController.delete);
 
 export default router;

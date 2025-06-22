@@ -1,4 +1,4 @@
-import { Ticket, Visit } from '../models/index.js';
+import { Ticket, Visit, Visitor } from '../models/index.js';
 import path from 'path';
 import { Op } from 'sequelize';
 
@@ -154,6 +154,31 @@ export default {
       return res.status(200).send({ labels, data });
     } catch (err) {
       console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getActiveVisitorsCount(req, res) {
+    try {
+      const activeTickets = await Ticket.findAll({
+        where: { status: 'Activo' },
+        attributes: ['visit_id']
+      });
+      const visitIds = activeTickets.map(t => t.visit_id);
+
+      if (visitIds.length === 0) {
+        return res.status(200).send({ count: 0 });
+      }
+
+      const count = await Visitor.count({
+        where: {
+          visit_id: { [Op.in]: visitIds }
+        }
+      });
+
+      return res.status(200).send({ count });
+    } catch (err) {
+      console.error('Error en getActiveVisitorsCount:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   }

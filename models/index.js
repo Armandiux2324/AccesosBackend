@@ -20,7 +20,7 @@ import Visitor   from './Visitor.js';
 import Ticket    from './Ticket.js';
 import Payment   from './Payment.js';
 import Price     from './Price.js';
-import Capacity  from './Capacity.js';
+import Settings  from './Settings.js';
 
 // Inicializar con sequelize
 User.initModel(sequelize);
@@ -29,11 +29,14 @@ Visitor.initModel(sequelize);
 Ticket.initModel(sequelize);
 Payment.initModel(sequelize);
 Price.initModel(sequelize);
-Capacity.initModel(sequelize);
+Settings.initModel(sequelize);
 
 //Relaciones
 Visit.hasMany(Visitor, { foreignKey: 'visit_id', as: 'visitors' });
 Visitor.belongsTo(Visit, { foreignKey: 'visit_id' });
+
+Visitor.belongsTo(Price, { foreignKey: 'price_id', as: 'price' });
+Price.hasMany(Visitor, { foreignKey: 'price_id', as: 'visitors' });
 
 Visit.hasMany(Ticket, { foreignKey: 'visit_id', as: 'tickets' });
 Ticket.belongsTo(Visit, { foreignKey: 'visit_id' });
@@ -49,5 +52,5 @@ export {
   Ticket,
   Payment,
   Price,
-  Capacity
+  Settings
 };

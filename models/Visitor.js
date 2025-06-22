@@ -8,7 +8,7 @@ export default class Visitor extends Model {
       gender:     { type: DataTypes.ENUM('Masculino','Femenino','Otro'), allowNull: false },
       school:     { type: DataTypes.STRING(150), allowNull: false },
       township:   { type: DataTypes.STRING(100), allowNull: true },
-      unit_price: { type: DataTypes.FLOAT, allowNull: false },
+      price_id:   { type: DataTypes.INTEGER, allowNull: false },
       visit_id:   { type: DataTypes.INTEGER, allowNull: false }
     }, {
       sequelize,
@@ -16,7 +16,8 @@ export default class Visitor extends Model {
       tableName: 'visitors',
       timestamps: false,
       indexes: [
-        { name: 'fk_visitor_visit_idx', fields: ['visit_id'] }
+        { name: 'fk_visitors_visit_idx', fields: ['visit_id'] },
+        { name: 'fk_visitors_price_idx', fields: ['price_id'] }
       ]
     });
   }
