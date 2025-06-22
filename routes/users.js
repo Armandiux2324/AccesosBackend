@@ -14,7 +14,7 @@ const router = Router();
 
 router.post('/users', mdAuth, validateBody(createSchema), usersController.save);
 router.put('/users', mdAuth, validateBody(updateSchema), usersController.update);
-router.put('/users-pass', mdAuth, validateBody(passwordSchema), usersController.updatePassword);
+router.put('/change-pass', mdAuth, validateBody(passwordSchema), usersController.updatePassword);
 router.delete('/users', mdAuth, validateBody(deleteSchema), usersController.delete);
 router.get('/users', mdAuth, usersController.getAll);
 router.get('/search-users', mdAuth, usersController.search);

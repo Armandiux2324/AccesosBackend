@@ -7,7 +7,7 @@ export const loginSchema = yup.object({
 
 export const passwordSchema = yup.object({
   id: yup.number().integer('ID inválido').positive('ID inválido').required('El ID es obligatorio'),
-  password: yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('La contraseña es obligatoria')
+  newPass: yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('La contraseña es obligatoria')
 });
 
 export const createSchema = yup.object({

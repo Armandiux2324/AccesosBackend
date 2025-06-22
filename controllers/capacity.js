@@ -17,7 +17,7 @@ export default {
   },
 
   async update(req, res) {
-    const { capacity } = req.body;
+    const { id, capacity } = req.body;
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
@@ -25,7 +25,7 @@ export default {
     try {
       const [updated] = await Capacity.update(
         { capacity },
-        { where: { id: 1 } }
+        { where: { id } }
       );
       if (!updated) {
         return res.status(404).send({ message: 'Capacidad no encontrada' });

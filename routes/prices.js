@@ -4,14 +4,14 @@ import pricesController from '../controllers/prices.js';
 import { validateBody } from '../middlewares/validate.js';
 import {
   createPriceSchema,
-  updatePriceSchema,
+  updatePricesSchema,
   idPriceSchema
 } from '../validators/prices.validator.js';
 
 const router = Router();
 
 router.post('/prices', mdAuth, validateBody(createPriceSchema), pricesController.save);
-router.put('/prices', mdAuth, validateBody(updatePriceSchema), pricesController.update);
+router.put('/prices', mdAuth, validateBody(updatePricesSchema), pricesController.updateMany);
 router.get('/prices', mdAuth, pricesController.getAll);
 router.get('/price', mdAuth, validateBody(idPriceSchema), pricesController.getOne);
 router.delete('/prices', mdAuth, validateBody(idPriceSchema), pricesController.delete);

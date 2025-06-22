@@ -40,22 +40,27 @@ export default {
     },
 
     async updatePassword(req, res) {
-        const { id, password } = req.body;
+        console.log(req)
+        const { id, newPass, confPass } = req.body;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
 
         try {
-            const hash = await bcrypt.hash(password, 10);
-            const [updated] = await User.update(
-                { password: hash },
-                { where: { id } }
-            );
-            if (!updated) {
-                return res.status(404).send({ message: 'Usuario no encontrado' });
+            if (newPass !== confPass) {
+                return res.status(400).send({ message: 'Las contraseñas no coinciden' });
+            } else{
+                const hash = await bcrypt.hash(newPass, 10);
+                const [updated] = await User.update(
+                    { password: hash },
+                    { where: { id } }
+                );
+                if (!updated) {
+                    return res.status(404).send({ message: 'Usuario no encontrado' });
+                }
+                return res.status(200).send({ message: 'Contraseña cambiada' });
             }
-            return res.status(200).send({ message: 'Contraseña cambiada' });
         } catch (err) {
             return res.status(500).send({ message: 'Intenta más tarde' });
         }

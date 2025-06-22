@@ -1,0 +1,71 @@
+CREATE TABLE users (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('Directora','Administrador','Taquilla') NOT NULL
+);
+
+CREATE TABLE visits (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  contact VARCHAR(100) NOT NULL,
+  datetime_begin DATETIME NOT NULL,
+  datetime_end DATETIME NULL,
+  duration_minutes INT NULL
+);
+
+CREATE TABLE visitors (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  age INT NOT NULL,
+  gender ENUM('Masculino','Femenino','Otro') NOT NULL,
+  school VARCHAR(150) NOT NULL,
+  township VARCHAR(100) NULL,
+  unit_price FLOAT NOT NULL,
+  visit_id INT NOT NULL,
+  INDEX fk_visitor_visit_idx (visit_id),
+  FOREIGN KEY (visit_id)
+    REFERENCES visits(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE tickets (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  visit_id INT NOT NULL,
+  qr VARCHAR(255) NOT NULL,
+  status ENUM('Activo','Inactivo','Pasivo') NOT NULL DEFAULT 'Pasivo',
+  total FLOAT NOT NULL,
+  INDEX fk_ticket_visit_idx (visit_id),
+  FOREIGN KEY (visit_id)
+    REFERENCES visits(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE payments (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  reference VARCHAR(100) NULL,
+  payment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  payment_type ENUM('Efectivo','Tarjeta') NOT NULL
+);
+
+ALTER TABLE tickets
+  ADD COLUMN payment_id INT NOT NULL,
+  ADD CONSTRAINT uq_visits_payment UNIQUE (payment_id),
+  ADD CONSTRAINT fk_visits_payments
+    FOREIGN KEY (payment_id)
+    REFERENCES payments(id)
+    ON UPDATE CASCADE
+    ON DELETE RESTRICT;
+
+CREATE TABLE prices (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  type ENUM('Niño','Niña','Adulto','Adulta','Adulto mayor','Adulta mayor','Discapacitada','Discapacitado','Acompañante (H)', 'Acompañante (M)') NOT NULL,
+  price FLOAT NOT NULL
+);
+
+CREATE TABLE capacity (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  capacity INT NOT NULL
+);

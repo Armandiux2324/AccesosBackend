@@ -4,7 +4,7 @@ export default {
   async save(req, res) {
     const { type, price } = req.body;
 
-    if (!['Administrador','Directora'].includes(req.user.role)) {
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
 
@@ -16,23 +16,27 @@ export default {
     }
   },
 
-  async update(req, res) {
-    const { id, type, price } = req.body;
-
-    if (!['Administrador','Directora'].includes(req.user.role)) {
-      return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
+  async updateMany(req, res) {
+    const { updates } = req.body;
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
+      return res.status(403).send({ message: 'No tienes permisos.' });
+    }
+    if (!Array.isArray(updates) || updates.length === 0) {
+      return res.status(400).send({ message: 'Enviar lista de actualizaciones.' });
     }
 
     try {
-      const [updated] = await Price.update(
-        { type, price },
-        { where: { id } }
+      await Promise.all(
+        updates.map(u =>
+          Price.update(
+            { price: u.price },
+            { where: { id: u.id } }
+          )
+        )
       );
-      if (!updated) {
-        return res.status(404).send({ message: 'Precio no encontrado' });
-      }
-      return res.status(200).send({ message: 'Precio modificado' });
+      return res.status(200).send({ message: 'Precios actualizados.' });
     } catch (err) {
+      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -40,7 +44,7 @@ export default {
   async delete(req, res) {
     const { id } = req.body;
 
-    if (!['Administrador','Directora'].includes(req.user.role)) {
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
 
@@ -66,7 +70,7 @@ export default {
 
   async getOne(req, res) {
     const { id } = req.body;
-    
+
     try {
       const price = await Price.findByPk(id);
       return res.status(200).send({ data: price });
