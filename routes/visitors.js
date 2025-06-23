@@ -18,7 +18,7 @@ router.get('/visitor',  mdAuth, validateBody(idVisitorSchema), visitorsControlle
 router.get('/visitors-by-type',  mdAuth, visitorsController.getVisitorsByPriceTypeTotal);
 router.get('/visitors-by-gender',  mdAuth, visitorsController.getVisitorsByGenderTotal);
 router.get('/visitors-by-age',  mdAuth, visitorsController.getVisitorsByAgeGroupTotal);
-router.get('/date-range-visitors',  mdAuth, validateBody(dateRangeSchema), visitorsController.getDailyVisitors);
+router.post('/date-range-visitors',  mdAuth, visitorsController.getDailyVisitors);
 router.get('/today-visitors',  mdAuth, visitorsController.getTodayCount);
 
 router.delete('/visitors', mdAuth, validateBody(idVisitorSchema), visitorsController.delete);

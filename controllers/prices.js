@@ -36,7 +36,6 @@ export default {
       );
       return res.status(200).send({ message: 'Precios actualizados.' });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

@@ -40,7 +40,6 @@ export default {
     },
 
     async updatePassword(req, res) {
-        console.log(req)
         const { id, newPass, confPass } = req.body;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
@@ -83,7 +82,6 @@ export default {
     },
 
     async update(req, res) {
-        console.log(req);
         const { id, name, username, email, role } = req.body;
 
         if (!['Administrador', 'Directora'].includes(req.user.role)) {
@@ -155,7 +153,6 @@ export default {
     },
 
     async search(req, res) {
-        console.log(req);
         const { parameter } = req.query;
         try {
             const users = await User.findAll({
@@ -170,7 +167,6 @@ export default {
             });
             return res.status(200).send({ data: users });
         } catch (err) {
-            console.error(err);
             return res.status(500).send({ message: 'Intenta más tarde' });
         }
     },

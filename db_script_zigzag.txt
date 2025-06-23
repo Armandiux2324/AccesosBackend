@@ -73,7 +73,8 @@ CREATE TABLE prices (
   price FLOAT NOT NULL
 );
 
-CREATE TABLE capacity (
+CREATE TABLE  settings (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  capacity INT NOT NULL
+  capacity INT NOT NULL,
+  companion_discount FLOAT NOT NULL
 );

@@ -4,7 +4,6 @@ import { Op } from 'sequelize';
 
 export default {
   async save(req, res) {
-    console.log(req)
     const { visit_id, payment_id, total } = req.body;
     let qr = 'Sin imagen';
 
@@ -85,7 +84,6 @@ export default {
       const totalSales = await Ticket.sum('total');
       return res.status(200).send({ totalSales: totalSales ?? 0 });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -112,7 +110,6 @@ export default {
 
       return res.status(200).send({ totalToday: totalToday ?? 0 });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -153,7 +150,6 @@ export default {
 
       return res.status(200).send({ labels, data });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -178,7 +174,6 @@ export default {
 
       return res.status(200).send({ count });
     } catch (err) {
-      console.error('Error en getActiveVisitorsCount:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   }

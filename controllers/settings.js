@@ -17,7 +17,6 @@ export default {
   },
 
   async update(req, res) {
-    console.log(req)
     const { id, capacity, companion_discount } = req.body;
     if (!['Administrador','Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });

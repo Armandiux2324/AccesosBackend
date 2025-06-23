@@ -32,7 +32,7 @@ export default {
 
   async delete(req, res) {
     const { id } = req.body;
- 
+
     try {
       const deleted = await Visitor.destroy({ where: { id } });
       if (!deleted) {
@@ -81,7 +81,7 @@ export default {
           where: {
             datetime_end: {
               [Op.gte]: startOfDay,
-              [Op.lt]:  startOfNextDay
+              [Op.lt]: startOfNextDay
             }
           }
         }]
@@ -89,7 +89,6 @@ export default {
 
       return res.status(200).send({ todayCount: count });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -97,7 +96,6 @@ export default {
   async getDailyVisitors(req, res) {
     try {
       const { from, to } = req.body;
-      console.log('from:', from, 'to:', to);
       const startDate = new Date(String(from));
       const endDate = new Date(String(to));
 
@@ -105,7 +103,12 @@ export default {
         include: [{
           model: Visit,
           required: true,
-          where: { datetime_begin: { [Op.between]: [startDate, endDate] } },
+          where: {
+            [Op.and]: [
+              { datetime_begin: { [Op.between]: [startDate, endDate] } },
+              literal('WEEKDAY(datetime_begin) NOT IN (5,6)')
+            ]
+          },
           attributes: []
         }],
         attributes: [
@@ -116,14 +119,22 @@ export default {
         order: [[fn('DATE', col('visit.datetime_begin')), 'ASC']]
       });
 
-      const result = data.map(item => ({
-        date: item.getDataValue('date'),
-        count: parseInt(item.getDataValue('count'), 10)
-      }));
+      const countsMap = {};
+      data.forEach(item => {
+        const date = item.getDataValue('date');
+        countsMap[date] = parseInt(item.getDataValue('count'), 10);
+      });
+
+      const result = [];
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const wd = d.getDay(); 
+        if (wd === 0 || wd === 6) continue;
+        const iso = d.toISOString().slice(0, 10);
+        result.push({ date: iso, count: countsMap[iso] || 0 });
+      }
 
       return res.status(200).send({ data: result });
     } catch (error) {
-      console.error(error);
       return res.status(500).send({ message: 'Error obteniendo visitantes diarios' });
     }
   },
@@ -150,7 +161,6 @@ export default {
 
       return res.status(200).send({ data: result });
     } catch (error) {
-      console.error(error);
       return res.status(500).send({ message: 'Error obteniendo visitantes por tipo de boleto (prices)' });
     }
   },
@@ -172,7 +182,6 @@ export default {
 
       return res.status(200).send({ data: result });
     } catch (error) {
-      console.error(error);
       return res.status(500).send({ message: 'Error obteniendo visitantes por género' });
     }
   },
@@ -206,7 +215,6 @@ export default {
 
       return res.status(200).send({ data: result });
     } catch (error) {
-      console.error(error);
       return res.status(500).send({ message: 'Error obteniendo visitantes por grupo de edad' });
     }
   }
