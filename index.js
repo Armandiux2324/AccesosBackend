@@ -4,6 +4,8 @@ import dotenv from 'dotenv';                // Variables de entorno
 import mysql from 'mysql2';                  // Para usar BD
 import bodyParser from 'body-parser';        // Ordenar información
 import cors from 'cors';                     // Permitir peticiones
+import { fileURLToPath } from 'url';
+import path from 'path';                    // Manejo de rutas de archivos
 
 //Rutas
 import usersRoutes   from './routes/users.js';
@@ -13,6 +15,9 @@ import visitsRoutes  from './routes/visits.js';
 import visitorsRoutes from './routes/visitors.js';
 import paymentsRoutes from './routes/payments.js';
 import ticketsRoutes  from './routes/tickets.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 dotenv.config();
 
@@ -33,6 +38,9 @@ app.use(cors());
 app.use(logger('dev')); //dev para debuggear en modo desarrollo
 app.use(express.urlencoded({extended:true}));
 app.use(bodyParser.json());
+
+const qrDir = path.resolve(__dirname, 'uploads', 'qr');
+app.use('/qr', express.static(path.join(__dirname, 'uploads', 'qr')));
 
 //Rutas agrupadas
 app.use(usersRoutes);

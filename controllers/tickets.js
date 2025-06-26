@@ -1,4 +1,4 @@
-import { Ticket, Visit, Visitor } from '../models/index.js';
+import { Payment, Ticket, Visit, Visitor } from '../models/index.js';
 import path from 'path';
 import { Op } from 'sequelize';
 
@@ -46,10 +46,16 @@ export default {
     const { id } = req.body;
 
     try {
-      const deleted = await Ticket.destroy({ where: { id } });
-      if (!deleted) {
+      const ticket = await Ticket.findByPk(id);
+      if (!ticket) {
         return res.status(404).send({ message: 'Ticket no encontrado' });
       }
+
+      const visitId = ticket.visit_id;
+
+      await ticket.destroy();
+      await Visit.destroy({ where: { id: visitId } });
+
       return res.status(200).send({ message: 'Ticket eliminado' });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -79,6 +85,36 @@ export default {
     }
   },
 
+  async getByVisitId(req, res) {
+    console.log(req)
+    const { visit_id } = req.query;
+
+    try {
+      const ticket = await Ticket.findOne({
+      where: { visit_id },
+      include: [
+        {
+          model: Visit,
+          as: 'visit',
+          attributes: ['id', 'contact', 'datetime_begin', 'datetime_end', 'duration_minutes']
+        },
+        {
+          model: Payment,
+          as: 'payment',
+          attributes: ['id', 'reference', 'payment_date', 'payment_type']
+        }
+      ]
+      });
+      if (!ticket) {
+        return res.status(404).send({ message: 'Ticket no encontrado' });
+      }
+      return res.status(200).send({ data: ticket });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
    async getTotalSales(req, res) {
     try {
       const totalSales = await Ticket.sum('total');
@@ -98,6 +134,7 @@ export default {
       const totalToday = await Ticket.sum('total', {
         include: [{
           model: Visit,
+          as: 'visit',
           required: true,
           where: {
             datetime_end: {
@@ -135,6 +172,7 @@ export default {
         const sum = await Ticket.sum('total', {
           include: [{
             model: Visit,
+            as: 'visit',
             required: true,
             where: {
               datetime_end: {
@@ -150,6 +188,7 @@ export default {
 
       return res.status(200).send({ labels, data });
     } catch (err) {
+      console.log(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

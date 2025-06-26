@@ -1,4 +1,5 @@
 import { Visit } from '../models/index.js';
+import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
   async updateDatetimeEnd(req, res) {
@@ -79,7 +80,7 @@ export default {
   },
 
   async getOne(req, res) {
-    const { id } = req.body;
+    const { id } = req.query;
     
     try {
       const visit = await Visit.findByPk(id);
@@ -90,5 +91,26 @@ export default {
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
-  }
+  },
+
+  async getVisitByDate(req, res) {
+      try {
+        const parameter = req.query.parameter;
+        if (!parameter) {
+          return res.status(400).send({ message: 'Parámetro requerido' });
+        }
+  
+        const visits = await Visit.findAll({
+          where: Sequelize.where(
+            fn('DATE', col('datetime_begin')),
+            parameter
+          ),
+          order: [['datetime_begin', 'DESC']]
+        });
+  
+        return res.status(200).send({ data: visits });
+      } catch (err) {
+        return res.status(500).send({ message: 'Intenta más tarde' });
+      }
+    }
 };

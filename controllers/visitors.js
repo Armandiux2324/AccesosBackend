@@ -54,7 +54,7 @@ export default {
   },
 
   async getOne(req, res) {
-    const { id } = req.body;
+    const { id } = req.query;
 
     try {
       const visitor = await Visitor.findByPk(id);
@@ -63,6 +63,29 @@ export default {
       }
       return res.status(200).send({ data: visitor });
     } catch (err) {
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getByVisitId(req, res) {
+    try {
+      const {visit_id} = req.query;
+      const visitors = await Visitor.findAll({
+        where: { visit_id },
+        include: [{
+          model: Price,
+          as: 'price',
+          attributes: ['type', 'price']
+        }]
+      });
+
+      if (visitors.length === 0) {
+        return res.status(404).send({ message: 'No se encontraron visitantes para esa visita' });
+      }
+
+      return res.status(200).send({ data: visitors });
+    } catch (err) {
+      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

@@ -1,4 +1,5 @@
-import { Payment } from '../models/index.js';
+import { Payment, Ticket } from '../models/index.js';
+import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
   async save(req, res) {
@@ -30,7 +31,7 @@ export default {
   },
 
   async delete(req, res) {
-    const { id } = req.body;
+    const { id } = req.query;
 
     try {
       const deleted = await Payment.destroy({ where: { id } });
@@ -39,6 +40,7 @@ export default {
       }
       return res.status(200).send({ message: 'Pago eliminado' });
     } catch (err) {
+      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

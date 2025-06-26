@@ -6,7 +6,8 @@ import {
   createPaymentSchema,
   updatePaymentSchema,
   deletePaymentSchema,
-  getOnePaymentSchema
+  getOnePaymentSchema,
+  getPaymentByDateSchema
 } from '../validators/payments.validator.js';
 
 const router = Router();
@@ -15,7 +16,7 @@ router.post('/payments', mdAuth,  validateBody(createPaymentSchema), paymentsCon
 router.put('/payments', mdAuth, validateBody(updatePaymentSchema), paymentsController.update);
 router.get('/payments', mdAuth, paymentsController.getAll);
 router.get('/payment',  mdAuth, validateBody(getOnePaymentSchema), paymentsController.getOne);
-router.delete('/payments', mdAuth, validateBody(deletePaymentSchema), paymentsController.delete);
+router.delete('/payments', mdAuth, paymentsController.delete);
 
 export default router;
 

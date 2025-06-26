@@ -8,7 +8,8 @@ export default class Ticket extends Model {
       qr:         { type: DataTypes.STRING(255), allowNull: false },
       status:     { type: DataTypes.ENUM('Activo','Inactivo','Pasivo'), defaultValue: 'Activo' , allowNull: false },
       total:      { type: DataTypes.FLOAT, allowNull: false },
-      payment_id: { type: DataTypes.INTEGER, allowNull: false }
+      payment_id: { type: DataTypes.INTEGER, allowNull: false },
+      discount: { type: DataTypes.ENUM('Sí','No'), defaultValue: 'No' , allowNull: false }
     }, {
       sequelize,
       modelName: 'Ticket',

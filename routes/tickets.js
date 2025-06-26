@@ -16,6 +16,7 @@ router.post('/tickets', mdAuth, mdUpload, validateBody(createTicketSchema), tick
 router.put('/tickets', mdAuth, validateBody(updateTicketSchema), ticketsController.update);
 router.get('/tickets', mdAuth, ticketsController.getAll);
 router.get('/ticket', mdAuth, validateBody(idTicketSchema), ticketsController.getOne);
+router.get('/ticket-by-visit', mdAuth, ticketsController.getByVisitId);
 router.get('/total-sales', mdAuth, ticketsController.getTotalSales);
 router.get('/today-sales', mdAuth, ticketsController.getTodaySales);
 router.get('/week-sales', mdAuth, ticketsController.getLast7DaysSales);

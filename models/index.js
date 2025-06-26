@@ -39,7 +39,7 @@ Visitor.belongsTo(Price, { foreignKey: 'price_id', as: 'price' });
 Price.hasMany(Visitor, { foreignKey: 'price_id', as: 'visitors' });
 
 Visit.hasMany(Ticket, { foreignKey: 'visit_id', as: 'tickets' });
-Ticket.belongsTo(Visit, { foreignKey: 'visit_id' });
+Ticket.belongsTo(Visit, { foreignKey: 'visit_id', as: 'visit' });
 
 Payment.hasOne(Ticket, { foreignKey: 'payment_id', as: 'ticket' });
 Ticket.belongsTo(Payment, { foreignKey: 'payment_id', as: 'payment' });
