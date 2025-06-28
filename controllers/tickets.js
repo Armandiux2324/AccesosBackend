@@ -1,6 +1,6 @@
 import { Payment, Ticket, Visit, Visitor } from '../models/index.js';
 import path from 'path';
-import { Op } from 'sequelize';
+import { Op, fn, col, literal } from 'sequelize';
 
 export default {
   async save(req, res) {
@@ -85,40 +85,34 @@ export default {
     }
   },
 
-  async getByVisitId(req, res) {
-    console.log(req)
-    const { visit_id } = req.query;
-
-    try {
-      const ticket = await Ticket.findOne({
-      where: { visit_id },
-      include: [
-        {
-          model: Visit,
-          as: 'visit',
-          attributes: ['id', 'contact', 'datetime_begin', 'datetime_end', 'duration_minutes']
-        },
-        {
-          model: Payment,
-          as: 'payment',
-          attributes: ['id', 'reference', 'payment_date', 'payment_type']
-        }
-      ]
-      });
-      if (!ticket) {
-        return res.status(404).send({ message: 'Ticket no encontrado' });
-      }
-      return res.status(200).send({ data: ticket });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
    async getTotalSales(req, res) {
     try {
       const totalSales = await Ticket.sum('total');
       return res.status(200).send({ totalSales: totalSales ?? 0 });
+    } catch (err) {
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async getSalesInDateRange(req, res) {
+    try {
+      const { from, to } = req.body;
+      const startDate = new Date(String(from));
+      const endDate = new Date(String(to));
+
+      const salesInRange = await Ticket.sum('total', {
+        include: [{
+          model: Visit,
+          as: 'visit',  
+          required: true,
+          where: {
+            datetime_end: {
+              [Op.between]: [startDate, endDate]
+            }
+          }
+        }]
+      });
+      return res.status(200).send({ salesInRange: salesInRange ?? 0 });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
@@ -166,6 +160,11 @@ export default {
         const dayEnd = new Date(dayStart);
         dayEnd.setDate(dayStart.getDate() + 1);
 
+        const wd = dayStart.getDay();
+        if (wd === 0 || wd === 1) {
+          continue;
+        }
+
         const label = dayStart.toISOString().slice(0,10);
         labels.push(label);
 
@@ -175,10 +174,11 @@ export default {
             as: 'visit',
             required: true,
             where: {
-              datetime_end: {
-                [Op.gte]: dayStart,
-                [Op.lt]:  dayEnd
-              }
+              [Op.and]: [
+                { datetime_begin: { [Op.gte]: dayStart } },
+                { datetime_begin: { [Op.lt]:  dayEnd   } },
+                literal('WEEKDAY(datetime_begin) NOT IN (0,6)')
+              ]
             }
           }]
         });

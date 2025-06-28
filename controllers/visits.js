@@ -1,4 +1,4 @@
-import { Visit } from '../models/index.js';
+import { Payment, Price, Ticket, Visit, Visitor } from '../models/index.js';
 import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
@@ -57,7 +57,7 @@ export default {
   },
 
   async delete(req, res) {
-    const { id } = req.body;
+    const { id } = req.query;
 
     try {
       const deleted = await Visit.destroy({ where: { id } });
@@ -72,7 +72,14 @@ export default {
 
   async getAll(req, res) {
     try {
-      const visits = await Visit.findAll();
+      const visits = await Visit.findAll({
+        include: [
+        {
+          model: Ticket,
+          as: 'ticket'
+        }
+      ]
+      });
       return res.status(200).send({ data: visits });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -83,12 +90,37 @@ export default {
     const { id } = req.query;
     
     try {
-      const visit = await Visit.findByPk(id);
+      const visit = await Visit.findOne({
+        where: { id },
+        include: [
+          {
+            model: Visitor,
+            as: 'visitors',
+            include: [
+            {
+              model: Price,
+              as: 'price'
+            }
+          ]
+          },
+          {
+            model: Ticket,
+            as: 'ticket',
+            include: [
+              {
+                model: Payment,
+                as: 'payment'
+              }
+            ]
+          }
+        ]
+      });
       if (!visit) {
         return res.status(404).send({ message: 'Visita no encontrada' });
       }
       return res.status(200).send({ data: visit });
     } catch (err) {
+      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

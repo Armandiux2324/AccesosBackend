@@ -6,7 +6,6 @@ import {
   createVisitSchema,
   updateDatetimeEndSchema,
   updateVisitSchema,
-  idVisitSchema
 } from '../validators/visits.validator.js';
 
 const router = Router();
@@ -17,7 +16,7 @@ router.put('/visit', mdAuth, validateBody(updateDatetimeEndSchema), visitsContro
 router.get('/search-visits',  mdAuth, visitsController.getVisitByDate);
 router.get('/visits', mdAuth, visitsController.getAll);
 router.get('/visit',  mdAuth, visitsController.getOne);
-router.delete('/visits', mdAuth, validateBody(idVisitSchema), visitsController.delete);
+router.delete('/visits', mdAuth, visitsController.delete);
 
 export default router;
 

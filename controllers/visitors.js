@@ -67,29 +67,6 @@ export default {
     }
   },
 
-  async getByVisitId(req, res) {
-    try {
-      const {visit_id} = req.query;
-      const visitors = await Visitor.findAll({
-        where: { visit_id },
-        include: [{
-          model: Price,
-          as: 'price',
-          attributes: ['type', 'price']
-        }]
-      });
-
-      if (visitors.length === 0) {
-        return res.status(404).send({ message: 'No se encontraron visitantes para esa visita' });
-      }
-
-      return res.status(200).send({ data: visitors });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   async getTodayCount(req, res) {
     try {
       const startOfDay = new Date();
@@ -129,7 +106,7 @@ export default {
           where: {
             [Op.and]: [
               { datetime_begin: { [Op.between]: [startDate, endDate] } },
-              literal('WEEKDAY(datetime_begin) NOT IN (5,6)')
+              literal('WEEKDAY(datetime_begin) NOT IN (0,6)')
             ]
           },
           attributes: []

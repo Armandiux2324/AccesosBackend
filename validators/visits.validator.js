@@ -18,6 +18,3 @@ export const updateVisitSchema = yup.object({
   duration_minutes: yup.number().typeError('La duración debe ser un número').integer('La duración debe ser un entero').min(0, 'La duración no puede ser negativa').required('La duración es obligatoria')
 });
 
-export const idVisitSchema = yup.object({
-  id: yup.number().positive('ID inválido').required('El campo ID es obligatorio')
-});

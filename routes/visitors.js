@@ -15,7 +15,6 @@ router.post('/visitors', mdAuth, validateBody(createVisitorSchema), visitorsCont
 router.put('/visitors', mdAuth, validateBody(updateVisitorSchema), visitorsController.update);
 router.get('/visitors', mdAuth, visitorsController.getAll);
 router.get('/visitor',  mdAuth, validateBody(idVisitorSchema), visitorsController.getOne);
-router.get('/visitors-by-visit', mdAuth, visitorsController.getByVisitId);
 router.get('/visitors-by-type',  mdAuth, visitorsController.getVisitorsByPriceTypeTotal);
 router.get('/visitors-by-gender',  mdAuth, visitorsController.getVisitorsByGenderTotal);
 router.get('/visitors-by-age',  mdAuth, visitorsController.getVisitorsByAgeGroupTotal);
