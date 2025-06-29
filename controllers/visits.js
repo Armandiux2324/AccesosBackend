@@ -13,7 +13,7 @@ export default {
 
       // Cálculo de duración
       const datetimeBegin = new Date(visit.datetime_begin);
-      const datetimeEnd   = new Date(datetime_end);
+      const datetimeEnd = new Date(datetime_end);
       if (datetimeEnd < datetimeBegin) {
         return res.status(400).send({ message: 'La fecha de fin debe ser posterior a la de inicio' });
       }
@@ -27,7 +27,7 @@ export default {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
-  
+
   async save(req, res) {
     const { contact, datetime_begin } = req.body;
 
@@ -41,7 +41,7 @@ export default {
 
   async update(req, res) {
     const { id, contact, datetime_begin, datetime_end, duration_minutes } = req.body;
- 
+
     try {
       const [updated] = await Visit.update(
         { contact, datetime_begin, datetime_end, duration_minutes },
@@ -70,25 +70,9 @@ export default {
     }
   },
 
-  async getAll(req, res) {
-    try {
-      const visits = await Visit.findAll({
-        include: [
-        {
-          model: Ticket,
-          as: 'ticket'
-        }
-      ]
-      });
-      return res.status(200).send({ data: visits });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   async getOne(req, res) {
     const { id } = req.query;
-    
+
     try {
       const visit = await Visit.findOne({
         where: { id },
@@ -97,11 +81,11 @@ export default {
             model: Visitor,
             as: 'visitors',
             include: [
-            {
-              model: Price,
-              as: 'price'
-            }
-          ]
+              {
+                model: Price,
+                as: 'price'
+              }
+            ]
           },
           {
             model: Ticket,
@@ -125,24 +109,69 @@ export default {
     }
   },
 
-  async getVisitByDate(req, res) {
-      try {
-        const parameter = req.query.parameter;
-        if (!parameter) {
-          return res.status(400).send({ message: 'Parámetro requerido' });
-        }
-  
-        const visits = await Visit.findAll({
-          where: Sequelize.where(
-            fn('DATE', col('datetime_begin')),
-            parameter
-          ),
-          order: [['datetime_begin', 'DESC']]
-        });
-  
-        return res.status(200).send({ data: visits });
-      } catch (err) {
-        return res.status(500).send({ message: 'Intenta más tarde' });
-      }
+  async getVisitsPaginated(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const size = parseInt(req.query.size) || 20;
+      const offset = (page - 1) * size;
+
+      const { count, rows } = await Visit.findAndCountAll({
+        include: [{
+          model: Ticket,
+          as: 'ticket'
+        }],
+        limit: size,
+        offset: offset,
+        order: [['datetime_begin', 'DESC']]
+      });
+
+      return res.status(200).send({
+        data: rows,
+        total: count,
+        page,
+        size,
+        totalPages: Math.ceil(count / size)
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
     }
+  },
+
+  async searchVisitsPaginated(req, res) {
+    try {
+      const { date, page = '1', size = '20' } = req.query;
+
+      const pageNum = parseInt(page, 10);
+      const pageSize = parseInt(size, 10);
+      const offset = (pageNum - 1) * pageSize;
+
+      const where = Sequelize.where(
+        fn('DATE', col('datetime_begin')), date
+      );
+
+      const { count, rows } = await Visit.findAndCountAll({
+        where,
+        include: [{
+          model: Ticket,
+          as: 'ticket'
+        }],
+        order: [['datetime_begin', 'DESC']],
+        limit:  pageSize,
+        offset: offset
+      });
+
+      return res.status(200).send({
+        data:       rows,
+        total:      count,
+        page:       pageNum,
+        size:       pageSize,
+        totalPages: Math.ceil(count / pageSize)
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
 };

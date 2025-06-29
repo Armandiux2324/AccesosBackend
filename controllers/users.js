@@ -49,7 +49,7 @@ export default {
         try {
             if (newPass !== confPass) {
                 return res.status(400).send({ message: 'Las contraseñas no coinciden' });
-            } else{
+            } else {
                 const hash = await bcrypt.hash(newPass, 10);
                 const [updated] = await User.update(
                     { password: hash },
@@ -122,18 +122,31 @@ export default {
 
     async getAll(req, res) {
         try {
-            let users;
-            if (['Administrador', 'Directora'].includes(req.user.role)) {
-                users = await User.findAll({
-                    where: {
-                        id: { [Op.ne]: req.user.sub }
-                    },
-                    attributes: { exclude: ['password'] }
-                });
-            } else {
-                users = await User.findAll({ where: { id: req.user.id } });
+            const page = parseInt(req.query.page, 10) || 1;
+            const size = parseInt(req.query.size, 10) || 20;
+            const offset = (page - 1) * size;
+
+            if (!['Administrador', 'Directora'].includes(req.user.role)) {
+                return res.status(403).send({ message: 'Acceso denegado' });
             }
-            return res.status(200).send({ data: users });
+
+            const result = await User.findAndCountAll({
+                where: {
+                    id: { [Op.ne]: req.user.sub }
+                },
+                attributes: { exclude: ['password'] },
+                limit: size,
+                offset: offset,
+                order: [['name', 'ASC']]
+            });
+
+            return res.status(200).send({
+                data: result.rows,
+                total: result.count,
+                page,
+                size,
+                totalPages: Math.ceil(result.count / size)
+            });
         } catch (err) {
             return res.status(500).send({ message: 'Intenta más tarde' });
         }
@@ -153,9 +166,13 @@ export default {
     },
 
     async search(req, res) {
-        const { parameter } = req.query;
         try {
-            const users = await User.findAll({
+            const { parameter, page = '1', size = '20' } = req.query;
+
+            const pageNum = parseInt(page, 10);
+            const pageSize = parseInt(size, 10);
+            const offset = (pageNum - 1) * pageSize;
+            const {count, rows} = await User.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { username: { [Op.like]: `%${parameter}%` } },
@@ -163,9 +180,18 @@ export default {
                     ],
                     id: { [Op.ne]: req.user.sub }
                 },
-                attributes: { exclude: ['password'] }
+                attributes: { exclude: ['password'] },
+                order: [['name', 'ASC']],
+                limit:  pageSize,
+                offset: offset
             });
-            return res.status(200).send({ data: users });
+            return res.status(200).send({
+                data:       rows,
+                total:      count,
+                page:       pageNum,
+                size:       pageSize,
+                totalPages: Math.ceil(count / pageSize)
+            });
         } catch (err) {
             return res.status(500).send({ message: 'Intenta más tarde' });
         }
