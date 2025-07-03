@@ -4,7 +4,6 @@ export default class Visitor extends Model {
   static initModel(sequelize) {
     Visitor.init({
       id:         { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      age:        { type: DataTypes.INTEGER, allowNull: false },
       gender:     { type: DataTypes.ENUM('Masculino','Femenino','Otro'), allowNull: false },
       school:     { type: DataTypes.STRING(150), allowNull: false },
       township:   { type: DataTypes.STRING(100), allowNull: true },

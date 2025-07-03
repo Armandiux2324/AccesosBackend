@@ -2,6 +2,23 @@ import { Payment, Price, Ticket, Visit, Visitor } from '../models/index.js';
 import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
+  async updateDatetimeBegin(req, res) {
+    const { id, datetime_begin } = req.body;
+
+    try {
+      const visit = await Visit.findByPk(id);
+      if (!visit) {
+        return res.status(404).send({ message: 'Visita no encontrada' });
+      }
+
+      await visit.update({ datetime_begin });
+
+      return res.status(200).send({ message: 'Visita iniciada' });
+    } catch (err) {
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
   async updateDatetimeEnd(req, res) {
     const { id, datetime_end } = req.body;
 
@@ -29,10 +46,10 @@ export default {
   },
 
   async save(req, res) {
-    const { contact, datetime_begin } = req.body;
+    const { contact } = req.body;
 
     try {
-      await Visit.create({ contact, datetime_begin });
+      await Visit.create({ contact });
       return res.status(201).send({ message: 'Visita agregada' });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -116,10 +133,24 @@ export default {
       const offset = (page - 1) * size;
 
       const { count, rows } = await Visit.findAndCountAll({
-        include: [{
-          model: Ticket,
-          as: 'ticket'
-        }],
+        include: [
+          {
+            model: Ticket,
+            as: 'ticket',
+            include: [{
+              model: Payment,
+              as: 'payment'
+            }],
+          },
+          {
+            model: Visitor,
+            as: 'visitors',
+            include: [{
+              model: Price,
+              as: 'price'
+            }]
+          }
+        ],
         limit: size,
         offset: offset,
         order: [['datetime_begin', 'DESC']]
@@ -152,20 +183,34 @@ export default {
 
       const { count, rows } = await Visit.findAndCountAll({
         where,
-        include: [{
-          model: Ticket,
-          as: 'ticket'
-        }],
+        include: [
+          {
+            model: Ticket,
+            as: 'ticket',
+            include: [{
+              model: Payment,
+              as: 'payment'
+            }],
+          },
+          {
+            model: Visitor,
+            as: 'visitors',
+            include: [{
+              model: Price,
+              as: 'price'
+            }]
+          }
+        ],
         order: [['datetime_begin', 'DESC']],
-        limit:  pageSize,
+        limit: pageSize,
         offset: offset
       });
 
       return res.status(200).send({
-        data:       rows,
-        total:      count,
-        page:       pageNum,
-        size:       pageSize,
+        data: rows,
+        total: count,
+        page: pageNum,
+        size: pageSize,
         totalPages: Math.ceil(count / pageSize)
       });
     } catch (err) {

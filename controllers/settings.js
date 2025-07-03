@@ -37,10 +37,6 @@ export default {
   },
 
   async get(req, res) {
-    if (!['Administrador','Directora'].includes(req.user.role)) {
-      return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-
     try {
       const settings = await Settings.findByPk(1);
       if (!settings) {

@@ -6,7 +6,8 @@ import { validateBody } from '../middlewares/validate.js';
 import {
   createTicketSchema,
   updateTicketSchema,
-  idTicketSchema
+  idTicketSchema,
+  updateStatusSchema,
 } from '../validators/tickets.validator.js';
 
 const router   = Router();
@@ -22,6 +23,7 @@ router.get('/today-sales', mdAuth, ticketsController.getTodaySales);
 router.get('/week-sales', mdAuth, ticketsController.getLast7DaysSales);
 router.get('/active-visitors', mdAuth, ticketsController.getActiveVisitorsCount);
 router.delete('/tickets', mdAuth, validateBody(idTicketSchema), ticketsController.delete);
+router.put('/ticket-status', mdAuth, validateBody(updateStatusSchema), ticketsController.updateStatus);
 
 export default router;
 

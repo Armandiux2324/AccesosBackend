@@ -16,3 +16,8 @@ export const updateTicketSchema = yup.object({
 export const idTicketSchema = yup.object({
   id: yup.number().positive('ID inválido').required('El campo id es obligatorio')
 });
+
+export const updateStatusSchema = yup.object({
+  id: yup.number().positive('ID inválido').required('El campo ID es obligatorio'),
+  status: yup.string().oneOf(['Activo', 'Inactivo', 'Pasivo'], 'Estado inválido').required('El estado es obligatorio')
+});

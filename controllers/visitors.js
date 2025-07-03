@@ -3,7 +3,7 @@ import { Op, fn, col, literal } from 'sequelize';
 
 export default {
   async save(req, res) {
-    const { age, gender, school, township, unit_price, visit_id } = req.body;
+    const { gender, school, township, unit_price, visit_id } = req.body;
 
     try {
       await Visitor.create({ age, gender, school, township, unit_price, visit_id });
@@ -14,11 +14,11 @@ export default {
   },
 
   async update(req, res) {
-    const { id, age, gender, school, township, unit_price, visit_id } = req.body;
+    const { id, gender, school, township, unit_price, visit_id } = req.body;
 
     try {
       const [updated] = await Visitor.update(
-        { age, gender, school, township, unit_price, visit_id },
+        { gender, school, township, unit_price, visit_id },
         { where: { id } }
       );
       if (!updated) {
@@ -185,37 +185,4 @@ export default {
       return res.status(500).send({ message: 'Error obteniendo visitantes por género' });
     }
   },
-
-  async getVisitorsByAgeGroupTotal(req, res) {
-    try {
-      const caseExpr = `
-        CASE
-          WHEN age BETWEEN 0 AND 10 THEN '0-10'
-          WHEN age BETWEEN 11 AND 20 THEN '11-20'
-          WHEN age BETWEEN 21 AND 30 THEN '21-30'
-          WHEN age BETWEEN 31 AND 40 THEN '31-40'
-          WHEN age BETWEEN 41 AND 50 THEN '41-50'
-          WHEN age BETWEEN 51 AND 60 THEN '51-60'
-          ELSE '60+'
-        END
-      `;
-
-      const data = await Visitor.findAll({
-        attributes: [
-          [literal(caseExpr), 'ageGroup'],
-          [fn('COUNT', col('id')), 'count']
-        ],
-        group: [literal('ageGroup')]
-      });
-
-      const result = data.map(item => ({
-        ageGroup: item.getDataValue('ageGroup'),
-        count: parseInt(item.getDataValue('count'), 10)
-      }));
-
-      return res.status(200).send({ data: result });
-    } catch (error) {
-      return res.status(500).send({ message: 'Error obteniendo visitantes por grupo de edad' });
-    }
-  }
 };

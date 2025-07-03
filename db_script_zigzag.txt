@@ -10,14 +10,14 @@ CREATE TABLE users (
 CREATE TABLE visits (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   contact VARCHAR(100) NOT NULL,
-  datetime_begin DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  datetime_begin DATETIME NULL,
   datetime_end DATETIME NULL,
   duration_minutes INT NULL
 );
 
 CREATE TABLE visitors (
   id INT NOT NULL AUTO_INCREMENT,
-  age INT NOT NULL,
   gender ENUM('Masculino','Femenino','Otro') NOT NULL,
   school VARCHAR(150) NOT NULL,
   township VARCHAR(100) NULL,
@@ -70,7 +70,7 @@ ALTER TABLE tickets
 
 CREATE TABLE prices (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  type ENUM('Niño','Adulto,'Adulto mayor','Discapacitado','Acompañante') NOT NULL,
+  ALTER TABLE prices MODIFY COLUMN type ENUM('Niño','Adulto','Adulto mayor','Discapacitado','Estudiante') NOT NULL,
   price FLOAT NOT NULL
 );
 

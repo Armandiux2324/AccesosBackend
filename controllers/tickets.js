@@ -215,5 +215,24 @@ export default {
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
-  }
+  },
+
+  async updateStatus(req, res) {
+    const { id, status } = req.body;
+    console.log(req)
+
+    try {
+      const [updated] = await Ticket.update(
+        { status },
+        { where: { id } }
+      );
+      if (!updated) {
+        return res.status(404).send({ message: 'Ticket no encontrado para esa visita' });
+      }
+      return res.status(200).send({ message: 'Estado actualizado' });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
 };
