@@ -142,6 +142,7 @@ export default {
       if (status == 'Activo') {
         visitUpdate.datetime_begin = now;
         visitUpdate.datetime_end = null;
+        visitUpdate.duration_minutes = null;
       } else if (status == 'Inactivo') {
         visitUpdate.datetime_end = now;
         if (!ticket.datetime_begin) {
@@ -150,6 +151,7 @@ export default {
       } else {
         visitUpdate.datetime_begin = null;
         visitUpdate.datetime_end = null;
+        visitUpdate.duration_minutes = null;
       }
       
       const [visitUpdated] = await Visit.update(

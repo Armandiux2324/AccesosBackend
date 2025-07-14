@@ -110,6 +110,7 @@ export default {
       const data = await Visitor.findAll({
         include: [{
           model: Visit,
+          as: 'visit',
           required: true,
           where: {
             [Op.and]: [
@@ -123,8 +124,8 @@ export default {
           [fn('DATE', col('visit.created_at')), 'date'],
           [fn('COUNT', col('visitor.id')), 'count']
         ],
-        group: [fn('DATE', col('visit.datetime_begin'))],
-        order: [[fn('DATE', col('visit.datetime_begin')), 'ASC']]
+        group: [fn('DATE', col('visit.created_at'))],
+        order: [[fn('DATE', col('visit.created_at')), 'ASC']]
       });
 
       const countsMap = {};
@@ -140,6 +141,8 @@ export default {
         const iso = d.toISOString().slice(0, 10);
         result.push({ date: iso, count: countsMap[iso] || 0 });
       }
+
+      console.log('Daily Visitors Result:', result);
 
       return res.status(200).send({ data: result });
     } catch (error) {
@@ -197,6 +200,42 @@ export default {
       return res.status(200).send({ data: result });
     } catch (error) {
       return res.status(500).send({ message: 'Error obteniendo visitantes por género' });
+    }
+  },
+
+  async getVisitorsByTownship(req, res) {
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
+      return res.status(403).send({ message: 'Acceso denegado' });
+    }
+
+    try {
+      // 1) Agrupamos los visitantes por township de la visita
+      const data = await Visitor.findAll({
+        include: [{
+          model: Visit,
+          as: 'visit',
+          attributes: [],
+          required: true
+        }],
+        attributes: [
+          // Extraemos visit.township como 'township'
+          [ col('visit.township'), 'township' ],
+          // Contamos los visitantes por grupo
+          [ fn('COUNT', col('Visitor.id')), 'count' ]
+        ],
+        group: ['visit.township'],
+        order: [[ col('visit.township'), 'ASC' ]]
+      });
+
+      const result = data.map(item => ({
+        township: item.getDataValue('township'),
+        count: parseInt(item.getDataValue('count'), 10)
+      }));
+
+      return res.status(200).send({ data: result });
+    } catch (error) {
+      console.error('Error obteniendo visitantes por municipio:', error);
+      return res.status(500).send({ message: 'Error obteniendo visitantes por municipio' });
     }
   },
 };

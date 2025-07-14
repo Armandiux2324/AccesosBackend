@@ -33,7 +33,7 @@ Settings.initModel(sequelize);
 
 //Relaciones
 Visit.hasMany(Visitor, { foreignKey: 'visit_id', as: 'visitors' });
-Visitor.belongsTo(Visit, { foreignKey: 'visit_id' });
+Visitor.belongsTo(Visit, { foreignKey: 'visit_id', as: 'visit' });
 
 Visitor.belongsTo(Price, { foreignKey: 'price_id', as: 'price' });
 Price.hasMany(Visitor, { foreignKey: 'price_id', as: 'visitors' });
