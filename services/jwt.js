@@ -16,5 +16,14 @@ function createToken(user){
     return jwt.encode(payload, secret);
 }
 
-export default {createToken};
+export function createScannerToken() {
+  const payload = {
+    role: 'scanner',
+    iat: moment().unix(),
+    exp: moment().add(99, 'years').unix()
+  };
+  return jwt.encode(payload, secret);
+}
+
+export default {createToken, createScannerToken};
 

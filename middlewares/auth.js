@@ -17,8 +17,17 @@ export function Auth(req, res, next) {
     if (payload.exp <= moment().unix()) {
       return res.status(401).send({ message: 'Sesión expirada.' });
     }
-    req.user = payload;
-    next();
+
+    if (payload.role == 'scanner' && req.path == '/tickets/scan') {
+      req.user = payload;
+      return next();
+    }
+
+    // Para cualquier otro endpoint, sólo usuarios con role distinto de 'scanner'
+    if (payload.role && payload.role !== 'scanner') {
+      req.user = payload;
+      return next();
+    }
   } catch (err) {
     return res.status(401).send({ message: 'Sesión inválida.' });
   }

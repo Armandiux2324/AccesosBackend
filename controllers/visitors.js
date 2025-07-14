@@ -3,10 +3,14 @@ import { Op, fn, col, literal } from 'sequelize';
 
 export default {
   async save(req, res) {
-    const { gender, school, township, unit_price, visit_id } = req.body;
+    const { gender, price_id, visit_id } = req.body;
+
+    if (!['Taquilla'].includes(req.user.role)) {
+        return res.status(403).send({ message: 'Acceso denegado' });
+    }
 
     try {
-      await Visitor.create({ age, gender, school, township, unit_price, visit_id });
+      await Visitor.create({ gender, price_id, visit_id });
       return res.status(201).send({ message: 'Visitante agregado' });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -14,11 +18,15 @@ export default {
   },
 
   async update(req, res) {
-    const { id, gender, school, township, unit_price, visit_id } = req.body;
+    const { id, gender, unit_price, visit_id } = req.body;
+
+    if (!['Taquilla'].includes(req.user.role)) {
+        return res.status(403).send({ message: 'Acceso denegado' });
+    }
 
     try {
       const [updated] = await Visitor.update(
-        { gender, school, township, unit_price, visit_id },
+        { gender, unit_price, visit_id },
         { where: { id } }
       );
       if (!updated) {
@@ -105,14 +113,14 @@ export default {
           required: true,
           where: {
             [Op.and]: [
-              { datetime_begin: { [Op.between]: [startDate, endDate] } },
-              literal('WEEKDAY(datetime_begin) NOT IN (0,6)')
+              { created_at: { [Op.between]: [startDate, endDate] } },
+              literal('WEEKDAY(created_at) NOT IN (0,6)')
             ]
           },
           attributes: []
         }],
         attributes: [
-          [fn('DATE', col('visit.datetime_begin')), 'date'],
+          [fn('DATE', col('visit.created_at')), 'date'],
           [fn('COUNT', col('visitor.id')), 'count']
         ],
         group: [fn('DATE', col('visit.datetime_begin'))],
@@ -140,6 +148,9 @@ export default {
   },
 
   async getVisitorsByPriceTypeTotal(req, res) {
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        return res.status(403).send({ message: 'Acceso denegado' });
+    }
     try {
       const data = await Visitor.findAll({
         include: [{
@@ -166,6 +177,9 @@ export default {
   },
 
   async getVisitorsByGenderTotal(req, res) {
+    if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        return res.status(403).send({ message: 'Acceso denegado' });
+    }
     try {
       const data = await Visitor.findAll({
         attributes: [

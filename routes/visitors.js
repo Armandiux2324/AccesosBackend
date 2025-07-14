@@ -5,8 +5,7 @@ import { validateBody } from '../middlewares/validate.js';
 import {
   createVisitorSchema,
   updateVisitorSchema,
-  idVisitorSchema,
-  dateRangeSchema
+  idVisitorSchema
 } from '../validators/visitors.validator.js';
 
 const router = Router();

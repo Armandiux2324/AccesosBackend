@@ -13,14 +13,14 @@ CREATE TABLE visits (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   datetime_begin DATETIME NULL,
   datetime_end DATETIME NULL,
-  duration_minutes INT NULL
+  duration_minutes INT NULL,
+  school VARCHAR(150) NULL,
+  township VARCHAR(100) NOT NULL,
 );
 
 CREATE TABLE visitors (
   id INT NOT NULL AUTO_INCREMENT,
   gender ENUM('Masculino','Femenino','Otro') NOT NULL,
-  school VARCHAR(150) NOT NULL,
-  township VARCHAR(100) NULL,
   price_id INT NOT NULL,
   visit_id INT NOT NULL,
   PRIMARY KEY (id),
@@ -41,10 +41,9 @@ CREATE TABLE visitors (
 CREATE TABLE tickets (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   visit_id INT NOT NULL,
-  qr VARCHAR(255) NOT NULL,
-  status ENUM('Activo','Inactivo','Pasivo') NOT NULL DEFAULT 'Pasivo',
-  total FLOAT NOT NULL,
-  discount ENUM('Sí', 'No') NOT NULL,
+  qr VARCHAR(255) NULL,
+  status ENUM('Activo','Inactivo','Sin iniciar') NOT NULL DEFAULT 'Sin iniciar',
+  discount ENUM('Sí', 'No') NOT NULL DEFAULT 'No',
   INDEX fk_ticket_visit_idx (visit_id),
   FOREIGN KEY (visit_id)
     REFERENCES visits(id)
@@ -56,7 +55,8 @@ CREATE TABLE payments (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   reference VARCHAR(100) NULL,
   payment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  payment_type ENUM('Efectivo','Tarjeta') NOT NULL
+  payment_type ENUM('Efectivo','Tarjeta') NOT NULL,
+  total FLOAT NOT NULL DEFAULT 0,
 );
 
 ALTER TABLE tickets
@@ -79,3 +79,18 @@ CREATE TABLE settings (
   capacity INT NOT NULL,
   companion_discount FLOAT NOT NULL
 );
+
+CREATE EVENT IF NOT EXISTS ev_expire_visits
+  ON SCHEDULE EVERY 1 HOUR
+  COMMENT 'Marca Inactivo y calcula duración 4h después de creación si aún no se cerró'
+  DO
+    UPDATE tickets t
+    JOIN visits v ON v.id = t.visit_id
+    SET
+      t.status           = 'Inactivo',
+      v.datetime_end     = NOW(),
+      v.duration_minutes = TIMESTAMPDIFF(MINUTE, v.datetime_begin, NOW())
+    WHERE
+      t.status <> 'Inactivo'
+      AND t.created_at <= NOW() - INTERVAL 4 HOUR
+      AND v.datetime_begin IS NOT NULL;

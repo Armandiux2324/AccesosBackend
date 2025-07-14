@@ -2,66 +2,23 @@ import { Payment, Price, Ticket, Visit, Visitor } from '../models/index.js';
 import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
-  async updateDatetimeBegin(req, res) {
-    const { id, datetime_begin } = req.body;
-
-    try {
-      const visit = await Visit.findByPk(id);
-      if (!visit) {
-        return res.status(404).send({ message: 'Visita no encontrada' });
-      }
-
-      await visit.update({ datetime_begin });
-
-      return res.status(200).send({ message: 'Visita iniciada' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  async updateDatetimeEnd(req, res) {
-    const { id, datetime_end } = req.body;
-
-    try {
-      const visit = await Visit.findByPk(id);
-      if (!visit) {
-        return res.status(404).send({ message: 'Visita no encontrada' });
-      }
-
-      // Cálculo de duración
-      const datetimeBegin = new Date(visit.datetime_begin);
-      const datetimeEnd = new Date(datetime_end);
-      if (datetimeEnd < datetimeBegin) {
-        return res.status(400).send({ message: 'La fecha de fin debe ser posterior a la de inicio' });
-      }
-      const differenceMs = datetimeEnd - datetimeBegin;
-      const duration_minutes = Math.round(differenceMs / 60000);
-
-      await visit.update({ datetime_end, duration_minutes });
-
-      return res.status(200).send({ message: 'Fecha de fin y duración actualizadas', duration_minutes });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   async save(req, res) {
-    const { contact } = req.body;
+    const { contact, school, township } = req.body;
 
     try {
-      await Visit.create({ contact });
-      return res.status(201).send({ message: 'Visita agregada' });
+      const visit = await Visit.create({ contact, school, township });
+      return res.status(201).send({message: 'Visita agregada', data: visit});
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
 
   async update(req, res) {
-    const { id, contact, datetime_begin, datetime_end, duration_minutes } = req.body;
+    const { id, contact, school, township, datetime_begin, datetime_end, duration_minutes } = req.body;
 
     try {
       const [updated] = await Visit.update(
-        { contact, datetime_begin, datetime_end, duration_minutes },
+        { contact, school, township, datetime_begin, datetime_end, duration_minutes },
         { where: { id } }
       );
       if (!updated) {
@@ -121,7 +78,6 @@ export default {
       }
       return res.status(200).send({ data: visit });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -133,6 +89,8 @@ export default {
       const offset = (page - 1) * size;
 
       const { count, rows } = await Visit.findAndCountAll({
+        distinct: true,
+        col: 'id',
         include: [
           {
             model: Ticket,
@@ -153,7 +111,7 @@ export default {
         ],
         limit: size,
         offset: offset,
-        order: [['datetime_begin', 'DESC']]
+        order: [['created_at', 'DESC']]
       });
 
       return res.status(200).send({
@@ -164,7 +122,6 @@ export default {
         totalPages: Math.ceil(count / size)
       });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
@@ -178,10 +135,12 @@ export default {
       const offset = (pageNum - 1) * pageSize;
 
       const where = Sequelize.where(
-        fn('DATE', col('datetime_begin')), date
+        fn('DATE', col('created_at')), date
       );
 
       const { count, rows } = await Visit.findAndCountAll({
+        distinct: true,
+        col: 'id',
         where,
         include: [
           {
@@ -201,7 +160,7 @@ export default {
             }]
           }
         ],
-        order: [['datetime_begin', 'DESC']],
+        order: [['created_at', 'DESC']],
         limit: pageSize,
         offset: offset
       });
@@ -214,9 +173,8 @@ export default {
         totalPages: Math.ceil(count / pageSize)
       });
     } catch (err) {
-      console.error(err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
-  },
+  }
 
 };

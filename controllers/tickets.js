@@ -1,36 +1,44 @@
-import { Payment, Ticket, Visit, Visitor } from '../models/index.js';
+import { Ticket, Visit, Visitor } from '../models/index.js';
 import path from 'path';
-import { Op, fn, col, literal } from 'sequelize';
+import { Op } from 'sequelize';
+import QRCode from 'qrcode';
+import { date } from 'yup';
 
 export default {
   async save(req, res) {
-    const { visit_id, payment_id, total } = req.body;
-    let qr = 'Sin imagen';
-
-    if (req.files && req.files.qr) {
-      const file_path = req.files.qr.path;
-      const file_name = path.basename(file_path);
-      const ext = path.extname(file_name).toLowerCase();
-
-      if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-        qr = file_name;
-      }
-    }
+    const { visit_id, payment_id, discount } = req.body;
 
     try {
-      await Ticket.create({ visit_id, payment_id, qr, total });
-      return res.status(201).send({ message: 'Ticket creado' });
+      const ticket = await Ticket.create({ visit_id, payment_id, discount });
+      const qrContent = `${ticket.id}`;
+
+      // Ruta y nombre de archivo
+      const filename = `qr_ticket_${ticket.id}.png`;
+      const outputPath = path.resolve('uploads', 'qr', filename);
+
+      // Generar el PNG
+      await QRCode.toFile(outputPath, qrContent, {
+        type: 'png',
+        width: 300,
+        margin: 2,
+      });
+
+      ticket.qr = filename;
+      await ticket.save();
+
+      return res.status(200).send({ message: 'Ticket creado' });
     } catch (err) {
+      console.error('Error al crear ticket con QR:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
 
   async update(req, res) {
-    const { id, visit_id, payment_id, total } = req.body;
+    const { id, visit_id, payment_id, discount } = req.body;
 
     try {
       const [updated] = await Ticket.update(
-        { visit_id, total, payment_id },
+        { visit_id, payment_id, discount },
         { where: { id } }
       );
       if (!updated) {
@@ -85,114 +93,6 @@ export default {
     }
   },
 
-   async getTotalSales(req, res) {
-    try {
-      const totalSales = await Ticket.sum('total');
-      return res.status(200).send({ totalSales: totalSales ?? 0 });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  async getSalesInDateRange(req, res) {
-    try {
-      const { from, to } = req.body;
-      const startDate = new Date(String(from));
-      const endDate = new Date(String(to));
-
-      const salesInRange = await Ticket.sum('total', {
-        include: [{
-          model: Visit,
-          as: 'visit',  
-          required: true,
-          where: {
-            datetime_end: {
-              [Op.between]: [startDate, endDate]
-            }
-          }
-        }]
-      });
-      return res.status(200).send({ salesInRange: salesInRange ?? 0 });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  async getTodaySales(req, res) {
-    try {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-      const startOfNextDay = new Date(startOfDay);
-      startOfNextDay.setDate(startOfDay.getDate() + 1);
-
-      const totalToday = await Ticket.sum('total', {
-        include: [{
-          model: Visit,
-          as: 'visit',
-          required: true,
-          where: {
-            datetime_end: {
-              [Op.gte]: startOfDay,
-              [Op.lt]:  startOfNextDay
-            }
-          }
-        }]
-      });
-
-      return res.status(200).send({ totalToday: totalToday ?? 0 });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  async getLast7DaysSales(req, res) {
-    try {
-      const today = new Date();
-      today.setHours(0,0,0,0);
-
-      const labels = [];
-      const data = [];
-
-      for (let i = 6; i >= 0; i--) {
-        const dayStart = new Date(today);
-        dayStart.setDate(today.getDate() - i);
-
-        const dayEnd = new Date(dayStart);
-        dayEnd.setDate(dayStart.getDate() + 1);
-
-        const wd = dayStart.getDay();
-        if (wd === 0 || wd === 1) {
-          continue;
-        }
-
-        const label = dayStart.toISOString().slice(0,10);
-        labels.push(label);
-
-        const sum = await Ticket.sum('total', {
-          include: [{
-            model: Visit,
-            as: 'visit',
-            required: true,
-            where: {
-              [Op.and]: [
-                { datetime_begin: { [Op.gte]: dayStart } },
-                { datetime_begin: { [Op.lt]:  dayEnd   } },
-                literal('WEEKDAY(datetime_begin) NOT IN (0,6)')
-              ]
-            }
-          }]
-        });
-
-        data.push(sum ?? 0);
-      }
-
-      return res.status(200).send({ labels, data });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   async getActiveVisitorsCount(req, res) {
     try {
       const activeTickets = await Ticket.findAll({
@@ -219,19 +119,119 @@ export default {
 
   async updateStatus(req, res) {
     const { id, status } = req.body;
-    console.log(req)
 
     try {
+      // 1) Obtener el ticket para conocer el visit_id
+      const ticket = await Ticket.findByPk(id);
+      if (!ticket) {
+        return res.status(404).send({ message: 'Ticket no encontrado' });
+      }
+
+      // 2) Actualizar solo el estado en tickets
       const [updated] = await Ticket.update(
-        { status },
+        { status: status },
         { where: { id } }
       );
       if (!updated) {
-        return res.status(404).send({ message: 'Ticket no encontrado para esa visita' });
+        return res.status(404).send({ message: 'No se pudo actualizar el ticket' });
       }
-      return res.status(200).send({ message: 'Estado actualizado' });
+
+      // 3) Preparar los campos de fecha para visits
+      const visitUpdate = {};
+      const now = new Date();
+      if (status == 'Activo') {
+        visitUpdate.datetime_begin = now;
+        visitUpdate.datetime_end = null;
+      } else if (status == 'Inactivo') {
+        visitUpdate.datetime_end = now;
+        if (!ticket.datetime_begin) {
+          return res.status(400).send({ message: 'Fecha de inicio no establecida para la visita' });
+        }
+      } else {
+        visitUpdate.datetime_begin = null;
+        visitUpdate.datetime_end = null;
+      }
+      
+      const [visitUpdated] = await Visit.update(
+        visitUpdate,
+        { where: { id: ticket.visit_id } }
+      );
+      if (!visitUpdated) {
+        return res.status(404).send({ message: 'Visita asociada no encontrada para actualizar fechas' });
+      }
+
+      return res.status(200).send({ message: 'Estado y fechas actualizadas' });
+
     } catch (err) {
-      console.error(err);
+      console.error('Error al actualizar estado:', err);
+      return res.status(500).send({ message: 'Intenta más tarde' });
+    }
+  },
+
+  async scan(req, res) {
+    const { ticket_id } = req.query;
+    if (!ticket_id) {
+      return res.status(400).send({ message: 'Falta ticketId' });
+    }
+
+    try {
+      // Búsqueda del ticket
+      const ticket = await Ticket.findByPk(ticket_id);
+      if (!ticket) {
+        return res.status(404).send({ message: 'Ticket no encontrado' });
+      }
+
+      // Conteo de visitantes de la visita asociada
+      const visitorsCount = await Visitor.count({
+        where: { visit_id: ticket.visit_id }
+      });
+
+      // Aplicar nuevo estado
+      let newStatus = ticket.status;
+      if (ticket.status === 'Sin iniciar') {
+        newStatus = 'Activo';
+      } else if (ticket.status === 'Activo') {
+        newStatus = 'Inactivo';
+      } else if (ticket.status === 'Inactivo') {
+        return res.status(404).send({ message: 'Ticket inactivo' });
+      }
+
+      if (newStatus !== ticket.status) {
+        ticket.status = newStatus;
+        await ticket.save();
+      }
+
+      // Actualizar fecha de inicio de la visita
+      if (newStatus === 'Activo') {
+        const visit = await Visit.findByPk(ticket.visit_id);
+        if (visit) {
+          visit.datetime_begin = new Date();
+          await visit.save();
+        }
+      } else if (newStatus === 'Inactivo') {
+        const visit = await Visit.findByPk(ticket.visit_id);
+        if (visit) {
+          visit.datetime_end = new Date();
+          // Cálculo de duración
+          const datetimeBegin = new Date(visit.datetime_begin);
+          const datetimeEnd = new Date(visit.datetime_end);
+          if (datetimeEnd < datetimeBegin) {
+            return res.status(400).send({ message: 'La fecha de fin debe ser posterior a la de inicio' });
+          }
+          const differenceMs = datetimeEnd - datetimeBegin;
+
+          visit.duration_minutes = Math.round(differenceMs / 60000);
+          await visit.save();
+        }
+      }
+
+      return res.status(200).send({
+        ticketId: ticket.id,
+        visitorsCount,
+        newStatus
+      });
+    } catch (err) {
+      console.error('Error en scan de ticket:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

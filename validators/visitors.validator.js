@@ -2,7 +2,6 @@ import * as yup from 'yup';
 
 export const createVisitorSchema = yup.object({
   gender: yup.string().required('El género es obligatorio'),
-  township: yup.string().required('El municipio es obligatorio'),
   price_id: yup.number().positive('ID del precio inválido').required('ID del precio es obligatorio'),
   visit_id: yup.number().positive('ID de la visita inválida').required('ID de la visita es obligatorio')
 });
@@ -10,7 +9,6 @@ export const createVisitorSchema = yup.object({
 export const updateVisitorSchema = yup.object({
   id: yup.number().positive('ID inválido').required('El campo ID es obligatorio'),
   gender: yup.string().required('El género es obligatorio'),
-  township: yup.string().required('El municipio es obligatorio'),
   price_id: yup.number().positive('ID del precio inválido').required('ID del precio es obligatorio'),
   visit_id: yup.number().positive('ID de la visita inválida').required('ID de la visita es obligatorio')
 });

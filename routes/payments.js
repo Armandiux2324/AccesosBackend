@@ -17,6 +17,10 @@ router.put('/payments', mdAuth, validateBody(updatePaymentSchema), paymentsContr
 router.get('/payments', mdAuth, paymentsController.getAll);
 router.get('/payment',  mdAuth, validateBody(getOnePaymentSchema), paymentsController.getOne);
 router.delete('/payments', mdAuth, paymentsController.delete);
+router.get('/total-sales', mdAuth, paymentsController.getTotalSales);
+router.post('/date-range-sales', mdAuth, paymentsController.getSalesInDateRange);
+router.get('/today-sales', mdAuth, paymentsController.getTodaySales);
+router.get('/week-sales', mdAuth, paymentsController.getLast7DaysSales);
 
 export default router;
 

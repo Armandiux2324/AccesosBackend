@@ -5,9 +5,8 @@ export default class Ticket extends Model {
     Ticket.init({
       id:         { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       visit_id:   { type: DataTypes.INTEGER, allowNull: false },
-      qr:         { type: DataTypes.STRING(255), allowNull: false },
-      status:     { type: DataTypes.ENUM('Activo','Inactivo','Pasivo'), defaultValue: 'Activo' , allowNull: false },
-      total:      { type: DataTypes.FLOAT, allowNull: false },
+      qr:         { type: DataTypes.STRING(255), allowNull: true },
+      status:     { type: DataTypes.ENUM('Activo','Inactivo','Sin iniciar'), defaultValue: 'Sin iniciar' , allowNull: false },
       payment_id: { type: DataTypes.INTEGER, allowNull: false },
       discount: { type: DataTypes.ENUM('Sí','No'), defaultValue: 'No' , allowNull: false }
     }, {

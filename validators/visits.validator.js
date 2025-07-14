@@ -4,16 +4,6 @@ export const createVisitSchema = yup.object({
   contact: yup.string().required('El contacto es obligatorio'),
 });
 
-export const updateDatetimeBeginSchema = yup.object({
-  id: yup.number().positive('ID inválido').required('El ID es obligatorio'),
-  datetime_begin: yup.date().typeError('Fecha y hora de inicio inválida').required('La fecha y hora de inicio es obligatoria')
-});
-
-export const updateDatetimeEndSchema = yup.object({
-  id: yup.number().positive('ID inválido').required('El ID es obligatorio'),
-  datetime_end: yup.date().typeError('Fecha y hora de fin inválida').required('La fecha y hora de fin es obligatoria')
-});
-
 export const updateVisitSchema = yup.object({
   id: yup.number().positive('ID inválido').required('El campo ID es obligatorio'),
   contact: yup.string().required('El campo contact es obligatorio'),
