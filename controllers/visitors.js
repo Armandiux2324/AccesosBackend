@@ -87,7 +87,7 @@ export default {
           model: Visit,
           required: true,
           where: {
-            datetime_end: {
+            created_at: {
               [Op.gte]: startOfDay,
               [Op.lt]: startOfNextDay
             }

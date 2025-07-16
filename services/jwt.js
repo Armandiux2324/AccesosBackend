@@ -20,7 +20,7 @@ export function createScannerToken() {
   const payload = {
     role: 'scanner',
     iat: moment().unix(),
-    exp: moment().add(99, 'years').unix()
+    exp: moment().add(10, 'years').unix()
   };
   return jwt.encode(payload, secret);
 }

@@ -17,6 +17,7 @@
     "connect-multiparty": "^2.2.0",
     "connect-sdk-nodejs": "^5.5.0",
     "cors": "^2.8.5",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "jwt-simple": "^0.5.6",

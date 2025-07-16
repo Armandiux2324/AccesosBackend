@@ -2,7 +2,6 @@ import { Ticket, Visit, Visitor } from '../models/index.js';
 import path from 'path';
 import { Op } from 'sequelize';
 import QRCode from 'qrcode';
-import { date } from 'yup';
 
 export default {
   async save(req, res) {
@@ -122,7 +121,9 @@ export default {
 
     try {
       // 1) Obtener el ticket para conocer el visit_id
-      const ticket = await Ticket.findByPk(id);
+      const ticket = await Ticket.findOne(
+        { where: { id }, include: [{ model: Visit, as: 'visit' }] }
+      );
       if (!ticket) {
         return res.status(404).send({ message: 'Ticket no encontrado' });
       }
@@ -145,7 +146,7 @@ export default {
         visitUpdate.duration_minutes = null;
       } else if (status == 'Inactivo') {
         visitUpdate.datetime_end = now;
-        if (!ticket.datetime_begin) {
+        if (!ticket.visit.datetime_begin) {
           return res.status(400).send({ message: 'Fecha de inicio no establecida para la visita' });
         }
       } else {
@@ -178,7 +179,9 @@ export default {
 
     try {
       // Búsqueda del ticket
-      const ticket = await Ticket.findByPk(ticket_id);
+      const ticket = await Ticket.findOne(
+        { where: { id: ticket_id }, include: [{ model: Visit, as: 'visit' }] }
+      );
       if (!ticket) {
         return res.status(404).send({ message: 'Ticket no encontrado' });
       }

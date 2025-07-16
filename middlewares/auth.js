@@ -18,13 +18,13 @@ export function Auth(req, res, next) {
       return res.status(401).send({ message: 'Sesión expirada.' });
     }
 
-    if (payload.role == 'scanner' && req.path == '/tickets/scan') {
+    if (payload.role == 'scanner' && req.path == '/scan') {
       req.user = payload;
       return next();
     }
 
     // Para cualquier otro endpoint, sólo usuarios con role distinto de 'scanner'
-    if (payload.role && payload.role !== 'scanner') {
+    if (payload.role !== 'scanner') {
       req.user = payload;
       return next();
     }
