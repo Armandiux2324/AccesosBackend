@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';        // Ordenar información
 import cors from 'cors';                     // Permitir peticiones
 import { fileURLToPath } from 'url';
 import path from 'path';                    // Manejo de rutas de archivos
+import cron from 'node-cron';
 
 //Rutas
 import usersRoutes   from './routes/users.js';
@@ -15,6 +16,8 @@ import visitsRoutes  from './routes/visits.js';
 import visitorsRoutes from './routes/visitors.js';
 import paymentsRoutes from './routes/payments.js';
 import ticketsRoutes  from './routes/tickets.js';
+
+import RefreshToken from './models/RefreshToken.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -53,6 +56,18 @@ app.use(ticketsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no válida' });
+});
+
+//Tarea programada para limpiar tokens expirados
+cron.schedule('0 0 * * *', async () => {
+  try {
+    await RefreshToken.destroy({
+      where: { expires_at: { [Op.lt]: new Date() } }
+    });
+    console.log('Tokens expirados limpiados');
+  } catch (err) {
+    console.error('Error limpiando refresh tokens:', err);
+  }
 });
 
 //Verificar la conexión a la DB

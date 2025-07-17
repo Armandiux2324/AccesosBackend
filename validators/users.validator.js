@@ -29,3 +29,11 @@ export const updateSchema = yup.object({
 export const deleteSchema = yup.object({
   id: yup.number().integer('ID inválido').positive('ID inválido').required('El ID es obligatorio')
 });
+
+export const refreshSchema = yup.object({
+  refreshToken: yup.string().required('Se requiere refreshToken')
+});
+
+export const logoutSchema = yup.object({
+  refreshToken: yup.string().required('Se requiere refreshToken')
+});

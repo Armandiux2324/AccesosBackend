@@ -85,6 +85,7 @@ export default {
       const count = await Visitor.count({
         include: [{
           model: Visit,
+          as: 'visit',
           required: true,
           where: {
             created_at: {
@@ -97,6 +98,7 @@ export default {
 
       return res.status(200).send({ todayCount: count });
     } catch (err) {
+      console.error('Error obteniendo conteo de visitantes del día:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

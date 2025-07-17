@@ -3,7 +3,7 @@ import { Model, DataTypes } from 'sequelize';
 export default class User extends Model {
   static initModel(sequelize) {
     User.init({
-      id:        { type: DataTypes.INTEGER,   primaryKey: true, autoIncrement: true },
+      id:        { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name:      { type: DataTypes.STRING(100), allowNull: false },
       username:  { type: DataTypes.STRING(100), allowNull: false, unique: true },
       email:     { type: DataTypes.STRING(100), allowNull: false },

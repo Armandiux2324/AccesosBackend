@@ -11,9 +11,18 @@ function createToken(user){
         role:user.role,
         name:user.name,
         iat:moment().unix(),
-        exp:moment().add(1, 'day').unix()
+        exp:moment().add(1, 'days').unix()
     }
     return jwt.encode(payload, secret);
+}
+
+export function createRefreshToken(user) {
+  const payload = {
+    sub: user.id,
+    iat: moment().unix(),
+    exp: moment().add(7, 'days').unix()
+  };
+  return jwt.encode(payload, secret);
 }
 
 export function createScannerToken() {
@@ -25,5 +34,5 @@ export function createScannerToken() {
   return jwt.encode(payload, secret);
 }
 
-export default {createToken, createScannerToken};
+export default {createToken, createRefreshToken, createScannerToken};
 

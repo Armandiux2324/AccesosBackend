@@ -30,6 +30,7 @@ import Ticket    from './Ticket.js';
 import Payment   from './Payment.js';
 import Price     from './Price.js';
 import Settings  from './Settings.js';
+import RefreshToken from './RefreshToken.js';
 
 // Inicializar con sequelize
 User.initModel(sequelize);
@@ -39,8 +40,12 @@ Ticket.initModel(sequelize);
 Payment.initModel(sequelize);
 Price.initModel(sequelize);
 Settings.initModel(sequelize);
+RefreshToken.initModel(sequelize);
 
 //Relaciones
+User.hasMany(RefreshToken, { foreignKey: 'user_id', as: 'refresh_tokens' });
+RefreshToken.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 Visit.hasMany(Visitor, { foreignKey: 'visit_id', as: 'visitors' });
 Visitor.belongsTo(Visit, { foreignKey: 'visit_id', as: 'visit' });
 
@@ -61,5 +66,6 @@ export {
   Ticket,
   Payment,
   Price,
-  Settings
+  Settings,
+  RefreshToken
 };

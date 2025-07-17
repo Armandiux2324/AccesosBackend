@@ -2,9 +2,10 @@ import bcrypt from 'bcrypt';
 import jwt from '../services/jwt.js';
 import { User } from '../models/index.js';
 import { Op } from 'sequelize';
+import RefreshToken from '../models/RefreshToken.js';
+import moment from 'moment';
 
 export default {
-
     async login(req, res) {
         const { identificator, password } = req.body;
         try {
@@ -23,10 +24,20 @@ export default {
             if (!match) {
                 return res.status(400).send({ message: 'Credenciales inválidas' });
             }
-            const token = jwt.createToken(user);
+
+            const accessToken = jwt.createToken(user);
+            const refreshToken = jwt.createRefreshToken(user);
+
+            await RefreshToken.create({
+                token:      refreshToken,
+                user_id:    user.id,
+                expires_at: moment().add(7, 'days').toDate()
+            });
+
             return res.status(200).send({
                 message: 'Sesión iniciada correctamente',
-                token,
+                accessToken,
+                refreshToken,
                 user: {
                     id: user.id,
                     username: user.username,
@@ -35,6 +46,7 @@ export default {
                 }
             });
         } catch (err) {
+            console.error('Error en login:', err);
             return res.status(500).send({ message: 'Intenta más tarde' });
         }
     },

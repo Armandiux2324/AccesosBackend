@@ -80,6 +80,21 @@ CREATE TABLE settings (
   companion_discount FLOAT NOT NULL
 );
 
+CREATE TABLE refresh_tokens (
+  id INT NOT NULL AUTO_INCREMENT,
+  token VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  user_id INT NOT NULL,
+  PRIMARY KEY (id),
+  INDEX idx_tokens_users (user_id),
+  CONSTRAINT fk_tokens_users
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);
+
 CREATE EVENT IF NOT EXISTS ev_expire_visits
   ON SCHEDULE EVERY 1 HOUR
   COMMENT 'Marca Inactivo y calcula duración 4h después de creación si aún no se cerró'
