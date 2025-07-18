@@ -3,8 +3,9 @@ import moment from 'moment';
 import dotenv from 'dotenv';
 
 dotenv.config();
-var secret = process.env.JWT_SECRET;
+var secret = process.env.JWT_SECRET; // Se obtiene la clave del .env
 
+// Función para crear un token JWT
 function createToken(user){
     var payload = {
         sub:user.id,
@@ -16,6 +17,7 @@ function createToken(user){
     return jwt.encode(payload, secret);
 }
 
+// Función para crear un token de refresco, que se utiliza para obtener un nuevo token sin necesidad de volver a iniciar sesión
 export function createRefreshToken(user) {
   const payload = {
     sub: user.id,
@@ -25,6 +27,7 @@ export function createRefreshToken(user) {
   return jwt.encode(payload, secret);
 }
 
+// Función para crear un token específico para escáneres, con una duración de 10 años
 export function createScannerToken() {
   const payload = {
     role: 'scanner',

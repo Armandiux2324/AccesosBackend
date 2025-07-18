@@ -2,7 +2,9 @@ import { Payment, Price, Ticket, Visit, Visitor } from '../models/index.js';
 import { Op, fn, col, Sequelize } from 'sequelize';
 
 export default {
+  // Función para agregar una nueva visita
   async save(req, res) {
+    // Recibir los datos de la visita
     const { contact, school, township } = req.body;
 
     try {
@@ -13,6 +15,7 @@ export default {
     }
   },
 
+  // Función para actualizar una visita
   async update(req, res) {
     const { id, contact, school, township, datetime_begin, datetime_end, duration_minutes } = req.body;
 
@@ -30,6 +33,7 @@ export default {
     }
   },
 
+  // Función para eliminar una visita
   async delete(req, res) {
     const { id } = req.query;
 
@@ -44,10 +48,12 @@ export default {
     }
   },
 
+  // Función para obtener una visita por ID
   async getOne(req, res) {
     const { id } = req.query;
 
     try {
+      // Buscar la visita por ID e incluir los visitantes y el ticket
       const visit = await Visit.findOne({
         where: { id },
         include: [
@@ -82,12 +88,15 @@ export default {
     }
   },
 
+  // Función para obtener todas las visitas paginadas 
   async getVisitsPaginated(req, res) {
     try {
+      // Obtener los parámetros de paginación
       const page = parseInt(req.query.page) || 1;
       const size = parseInt(req.query.size) || 20;
       const offset = (page - 1) * size;
 
+      // Consultar las visitas con paginación
       const { count, rows } = await Visit.findAndCountAll({
         distinct: true,
         col: 'id',
@@ -126,10 +135,12 @@ export default {
     }
   },
 
+  // Función para buscar visitas por fecha paginadas
   async searchVisitsPaginated(req, res) {
     try {
       const { date, page = '1', size = '20' } = req.query;
 
+      // Establecer parámetros de paginación
       const pageNum = parseInt(page, 10);
       const pageSize = parseInt(size, 10);
       const offset = (pageNum - 1) * pageSize;
@@ -138,6 +149,7 @@ export default {
         fn('DATE', col('created_at')), date
       );
 
+      // Consultar las visitas filtradas por fecha y paginadas
       const { count, rows } = await Visit.findAndCountAll({
         distinct: true,
         col: 'id',

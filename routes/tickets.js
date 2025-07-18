@@ -2,25 +2,26 @@ import { Router } from 'express';
 import { Auth as mdAuth } from '../middlewares/auth.js';
 import multipart from 'connect-multiparty';
 import ticketsController from '../controllers/tickets.js';
-import { validateBody } from '../middlewares/validate.js';
+import { validateAll } from '../middlewares/validate.js';
 import {
   createTicketSchema,
   updateTicketSchema,
-  idTicketSchema,
   updateStatusSchema,
+  scanTicketSchema
 } from '../validators/tickets.validator.js';
 
+// Se crea una instancia del enrutador
 const router   = Router();
+// Middleware para manejar la carga de archivos
 const mdUpload = multipart({ uploadDir: 'uploads/qr' });
 
-router.post('/tickets', mdAuth, mdUpload, validateBody(createTicketSchema), ticketsController.save);
-router.put('/tickets', mdAuth, validateBody(updateTicketSchema), ticketsController.update);
+// Definición de las rutas para los tickets
+router.post('/tickets', mdAuth, mdUpload, validateAll(createTicketSchema), ticketsController.save);
+router.put('/tickets', mdAuth, validateAll(updateTicketSchema), ticketsController.update);
 router.get('/tickets', mdAuth, ticketsController.getAll);
-router.get('/ticket', mdAuth, validateBody(idTicketSchema), ticketsController.getOne);
 router.get('/active-visitors', mdAuth, ticketsController.getActiveVisitorsCount);
-router.get('/scan', mdAuth, ticketsController.scan);
-router.delete('/tickets', mdAuth, validateBody(idTicketSchema), ticketsController.delete);
-router.put('/ticket-status', mdAuth, validateBody(updateStatusSchema), ticketsController.updateStatus);
+router.get('/scan', mdAuth, validateAll(scanTicketSchema), ticketsController.scan); // Ruta para escanear tickets
+router.put('/ticket-status', mdAuth, validateAll(updateStatusSchema), ticketsController.updateStatus);
 
 export default router;
 

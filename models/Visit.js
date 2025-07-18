@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de visitas de acuerdo a la tabla 'visits'
 export default class Visit extends Model {
   static initModel(sequelize) {
     Visit.init({

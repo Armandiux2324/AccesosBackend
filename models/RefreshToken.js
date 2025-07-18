@@ -1,6 +1,7 @@
 // models/RefreshToken.js
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de tokens de actualización de acuerdo a la tabla 'refresh_tokens'
 export default class RefreshToken extends Model {
   static initModel(sequelize) {
     RefreshToken.init({

@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de tickets de acuerdo a la tabla 'tickets'
 export default class Ticket extends Model {
   static initModel(sequelize) {
     Ticket.init({

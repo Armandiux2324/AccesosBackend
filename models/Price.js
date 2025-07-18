@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de precios de acuerdo a la tabla 'prices'
 export default class Price extends Model {
   static initModel(sequelize) {
     Price.init({

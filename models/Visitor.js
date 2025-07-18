@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de visitantes de acuerdo a la tabla 'visitors'
 export default class Visitor extends Model {
   static initModel(sequelize) {
     Visitor.init({

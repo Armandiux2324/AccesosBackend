@@ -4,10 +4,13 @@ import { Op } from 'sequelize';
 import QRCode from 'qrcode';
 
 export default {
+  // Función para crear tickets
   async save(req, res) {
+    // Recibe el visit_id, payment_id y discount en el body
     const { visit_id, payment_id, discount } = req.body;
 
     try {
+      // Crear el ticket
       const ticket = await Ticket.create({ visit_id, payment_id, discount });
       const qrContent = `${ticket.id}`;
 
@@ -22,17 +25,19 @@ export default {
         margin: 2,
       });
 
+      // Actualizar el ticket con la ruta del QR
       ticket.qr = filename;
       await ticket.save();
 
       return res.status(200).send({ message: 'Ticket creado' });
     } catch (err) {
-      console.error('Error al crear ticket con QR:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
 
+  // Función para actualizar tickets
   async update(req, res) {
+    // Recibe el id, visit_id, payment_id y discount en el body
     const { id, visit_id, payment_id, discount } = req.body;
 
     try {
@@ -49,26 +54,7 @@ export default {
     }
   },
 
-  async delete(req, res) {
-    const { id } = req.body;
-
-    try {
-      const ticket = await Ticket.findByPk(id);
-      if (!ticket) {
-        return res.status(404).send({ message: 'Ticket no encontrado' });
-      }
-
-      const visitId = ticket.visit_id;
-
-      await ticket.destroy();
-      await Visit.destroy({ where: { id: visitId } });
-
-      return res.status(200).send({ message: 'Ticket eliminado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
+  // Función para obtener todos los tickets
   async getAll(req, res) {
     try {
       const tickets = await Ticket.findAll();
@@ -78,22 +64,10 @@ export default {
     }
   },
 
-  async getOne(req, res) {
-    const { id } = req.body;
-
-    try {
-      const ticket = await Ticket.findByPk(id);
-      if (!ticket) {
-        return res.status(404).send({ message: 'Ticket no encontrado' });
-      }
-      return res.status(200).send({ data: ticket });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
+  // Función para obtener el conteo de visitantes activos
   async getActiveVisitorsCount(req, res) {
     try {
+      // Busca tickets activos y obtiene los visit_id
       const activeTickets = await Ticket.findAll({
         where: { status: 'Activo' },
         attributes: ['visit_id']
@@ -104,6 +78,7 @@ export default {
         return res.status(200).send({ count: 0 });
       }
 
+      // Cuenta los visitantes asociados a esos visit_id
       const count = await Visitor.count({
         where: {
           visit_id: { [Op.in]: visitIds }
@@ -116,11 +91,12 @@ export default {
     }
   },
 
+  // Función para actualizar el estado de un ticket
   async updateStatus(req, res) {
     const { id, status } = req.body;
 
     try {
-      // 1) Obtener el ticket para conocer el visit_id
+      // Obtener el ticket para sacar el visit_id
       const ticket = await Ticket.findOne(
         { where: { id }, include: [{ model: Visit, as: 'visit' }] }
       );
@@ -128,7 +104,7 @@ export default {
         return res.status(404).send({ message: 'Ticket no encontrado' });
       }
 
-      // 2) Actualizar solo el estado en tickets
+      // Actualizar el estado en tickets
       const [updated] = await Ticket.update(
         { status: status },
         { where: { id } }
@@ -137,9 +113,10 @@ export default {
         return res.status(404).send({ message: 'No se pudo actualizar el ticket' });
       }
 
-      // 3) Preparar los campos de fecha para visits
+      // Preparar los campos de fecha para visits
       const visitUpdate = {};
       const now = new Date();
+      // Actualizar las fechas según el estado
       if (status == 'Activo') {
         visitUpdate.datetime_begin = now;
         visitUpdate.datetime_end = null;
@@ -166,16 +143,13 @@ export default {
       return res.status(200).send({ message: 'Estado y fechas actualizadas' });
 
     } catch (err) {
-      console.error('Error al actualizar estado:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
 
+  // Función para que se ejecutará al escanear tickets
   async scan(req, res) {
     const { ticket_id } = req.query;
-    if (!ticket_id) {
-      return res.status(400).send({ message: 'Falta ticketId' });
-    }
 
     try {
       // Búsqueda del ticket
@@ -236,7 +210,6 @@ export default {
         newStatus
       });
     } catch (err) {
-      console.error('Error en scan de ticket:', err);
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },

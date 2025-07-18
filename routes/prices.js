@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Auth as mdAuth } from '../middlewares/auth.js';
 import pricesController from '../controllers/prices.js';
-import { validateBody } from '../middlewares/validate.js';
+import { validateAll } from '../middlewares/validate.js';
 import {
   createPriceSchema,
   updatePricesSchema,
@@ -10,11 +10,11 @@ import {
 
 const router = Router();
 
-router.post('/prices', mdAuth, validateBody(createPriceSchema), pricesController.save);
-router.put('/prices', mdAuth, validateBody(updatePricesSchema), pricesController.updateMany);
+// Definición de las rutas para los precios
+router.post('/prices', mdAuth, validateAll(createPriceSchema), pricesController.save);
+router.put('/prices', mdAuth, validateAll(updatePricesSchema), pricesController.updateMany);
 router.get('/prices', mdAuth, pricesController.getAll);
-router.get('/price', mdAuth, validateBody(idPriceSchema), pricesController.getOne);
-router.delete('/prices', mdAuth, validateBody(idPriceSchema), pricesController.delete);
+router.get('/price', mdAuth, validateAll(idPriceSchema, 'query'), pricesController.getOne);
 
 export default router;
 

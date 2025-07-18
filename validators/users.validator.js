@@ -26,7 +26,7 @@ export const updateSchema = yup.object({
   role: yup.string().oneOf(['Administrador', 'Directora', 'Taquilla'], 'Rol inválido').required('El rol es obligatorio')
 });
 
-export const deleteSchema = yup.object({
+export const userIdSchema = yup.object({
   id: yup.number().integer('ID inválido').positive('ID inválido').required('El ID es obligatorio')
 });
 

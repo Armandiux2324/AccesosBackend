@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de usuarios de acuerdo a la tabla 'users'
 export default class User extends Model {
   static initModel(sequelize) {
     User.init({

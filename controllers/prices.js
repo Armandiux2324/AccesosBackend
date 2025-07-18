@@ -1,9 +1,11 @@
 import { Price } from '../models/index.js';
 
 export default {
+  // Función para el registro de precios
   async save(req, res) {
     const { type, price } = req.body;
 
+    // Verifica si el usuario tiene permisos para crear precios
     if (!['Administrador', 'Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
     }
@@ -16,16 +18,19 @@ export default {
     }
   },
 
+  // Función para actualizar todos los precios
   async updateMany(req, res) {
     const { updates } = req.body;
     if (!['Administrador', 'Directora'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos.' });
     }
+    // Verifica que se envíe una lista de actualizaciones
     if (!Array.isArray(updates) || updates.length === 0) {
       return res.status(400).send({ message: 'Enviar lista de actualizaciones.' });
     }
 
     try {
+      // Actualiza cada precio en la lista de actualizaciones
       await Promise.all(
         updates.map(u =>
           Price.update(
@@ -40,24 +45,7 @@ export default {
     }
   },
 
-  async delete(req, res) {
-    const { id } = req.body;
-
-    if (!['Administrador', 'Directora'].includes(req.user.role)) {
-      return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-
-    try {
-      const deleted = await Price.destroy({ where: { id } });
-      if (!deleted) {
-        return res.status(404).send({ message: 'Precio no encontrado' });
-      }
-      return res.status(200).send({ message: 'Precio eliminado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
+  // Función obtener todos los precios
   async getAll(req, res) {
     try {
       const prices = await Price.findAll();
@@ -67,8 +55,10 @@ export default {
     }
   },
 
+  // Función para obtener un precio específico
   async getOne(req, res) {
-    const { id } = req.body;
+    // Recibe el id del precio a obtener en la query
+    const { id } = req.query;
 
     try {
       const price = await Price.findByPk(id);

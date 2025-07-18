@@ -4,9 +4,9 @@ import dotenv from 'dotenv';                // Variables de entorno
 import mysql from 'mysql2';                  // Para usar BD
 import bodyParser from 'body-parser';        // Ordenar información
 import cors from 'cors';                     // Permitir peticiones
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';         // Manejo de rutas de archivos
 import path from 'path';                    // Manejo de rutas de archivos
-import cron from 'node-cron';
+import cron from 'node-cron';           // Tareas programadas
 
 //Rutas
 import usersRoutes   from './routes/users.js';
@@ -17,14 +17,17 @@ import visitorsRoutes from './routes/visitors.js';
 import paymentsRoutes from './routes/payments.js';
 import ticketsRoutes  from './routes/tickets.js';
 
+//Modelo para manejar tokens de refresco
 import RefreshToken from './models/RefreshToken.js';
 
+//Nombre del archivo y directorio para almacenar QRs
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
+//Cargar variables de entorno
 dotenv.config();
 
-const app = express();
+const app = express(); //Crear servidor API
 const PORT = process.env.PORT; //Puerto de la app
 
 //Conectar a la base de datos
@@ -54,17 +57,18 @@ app.use(visitorsRoutes);
 app.use(paymentsRoutes);
 app.use(ticketsRoutes);
 
+//Ruta por defecto
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no válida' });
 });
 
 //Tarea programada para limpiar tokens expirados
 cron.schedule('0 0 * * *', async () => {
+  timezone: 'America/Mexico_City'
   try {
     await RefreshToken.destroy({
       where: { expires_at: { [Op.lt]: new Date() } }
     });
-    console.log('Tokens expirados limpiados');
   } catch (err) {
     console.error('Error limpiando refresh tokens:', err);
   }

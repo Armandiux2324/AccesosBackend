@@ -1,10 +1,17 @@
-export const validateBody = (schema) => {
+import { ValidationError } from 'yup';
+
+// Middleware para validar datos usando Yup
+export function validateAll(schema, source = 'body') {
   return async (req, res, next) => {
     try {
-      await schema.validate(req.body, { abortEarly: false });
-      return next();
+      const data = req[source]; // body, query o params
+      await schema.validate(data, { abortEarly: false });
+      next();
     } catch (err) {
-      return res.status(400).json({ errors: err.errors });
+      if (err instanceof ValidationError) {
+        return res.status(400).json({ errors: err.errors });
+      }
+      next(err);
     }
   };
-};
+}

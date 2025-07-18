@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
+// Modelo de configuraciones de acuerdo a la tabla 'settings'
 export default class Settings extends Model {
   static initModel(sequelize) {
     Settings.init({
