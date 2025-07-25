@@ -4,11 +4,11 @@ import { Op, literal } from 'sequelize';
 export default {
   // Función para crear pagos
   async save(req, res) {
-    //Recibe el tipo de pago y el total en el body
-    const { payment_type, total } = req.body;
+    //Recibe el efectivo, tarjeta y cheque y el total en el body
+    const { total, cash, card, payment_check } = req.body;
 
     try {
-      const payment = await Payment.create({ payment_type, total });
+      const payment = await Payment.create({ total, cash, card, payment_check });
       return res.status(201).send({ message: 'Pago agregado', data: payment });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -17,13 +17,13 @@ export default {
 
   // Función para actualizar pagos
   async update(req, res) {
-    //Recibe el id, tipo de pago y total en el body
-    const { id, payment_type, total } = req.body;
+    //Recibe el id, efectivo, tarjeta, cheque y total en el body
+    const { id, total, cash, card, payment_check } = req.body;
 
     //Actualiza el pago con el id recibido
     try {
       const [updated] = await Payment.update(
-        { payment_type, total },
+        { total, cash, card, payment_check },
         { where: { id } }
       );
       if (!updated) {

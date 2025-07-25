@@ -6,8 +6,10 @@ export default class Payment extends Model {
     Payment.init({
       id:            { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       payment_date:  { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-      payment_type:  { type: DataTypes.ENUM('Efectivo','Tarjeta'), allowNull: false },
-      total:      { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
+      total:      { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
+      cash:       { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
+      card:       { type: DataTypes.FLOAT, allowNull: false, defaultValue:  0.0 },
+      payment_check: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
     }, {
       sequelize,
       modelName: 'Payment',

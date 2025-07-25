@@ -21,7 +21,7 @@ router.delete('/payments', mdAuth, validateAll(paymentIdSchema, 'query'), paymen
 
 // Rutas para obtener estadísticas de pagos
 router.get('/total-sales', mdAuth, paymentsController.getTotalSales);
-router.post('/date-range-sales', mdAuth, validateAll(getPaymentByDateSchema), paymentsController.getSalesInDateRange);
+router.post('/date-range-sales', mdAuth, paymentsController.getSalesInDateRange);
 router.get('/today-sales', mdAuth, paymentsController.getTodaySales);
 router.get('/week-sales', mdAuth, paymentsController.getLast7DaysSales);
 

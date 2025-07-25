@@ -6,7 +6,7 @@ export default class Price extends Model {
     Price.init({
       id:    { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       type:  { 
-        type: DataTypes.ENUM('Niño','Niña','Hombre','Mujer','Discapacitado','Acompañante'),
+        type: DataTypes.ENUM('Niño','Adulto','Adulto mayor','Discapacitado','Acompañante','Estudiante'),
         allowNull: false
       },
       price: { type: DataTypes.FLOAT, allowNull: false }

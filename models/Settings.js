@@ -7,6 +7,7 @@ export default class Settings extends Model {
       id:       { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       capacity: { type: DataTypes.INTEGER, allowNull: false },
       companion_discount: { type: DataTypes.FLOAT, allowNull: false },
+      student_discount: { type: DataTypes.FLOAT, allowNull: false},
     }, {
       sequelize,
       modelName: 'Settings',
