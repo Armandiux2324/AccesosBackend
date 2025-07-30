@@ -54,16 +54,6 @@ export default {
     }
   },
 
-  // Función para obtener todos los tickets
-  async getAll(req, res) {
-    try {
-      const tickets = await Ticket.findAll();
-      return res.status(200).send({ data: tickets });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   // Función para obtener el conteo de visitantes activos
   async getActiveVisitorsCount(req, res) {
     try {

@@ -23,7 +23,7 @@ router.put('/users', mdAuth, validateAll(updateSchema), usersController.update);
 router.put('/change-pass', mdAuth, validateAll(passwordSchema), usersController.updatePassword);
 router.delete('/users', mdAuth, validateAll(userIdSchema, 'query'), usersController.delete);
 router.get('/users', mdAuth, usersController.getAll);
-router.get('/search-users', mdAuth, usersController.search);
+router.get('/search-users', mdAuth, usersController.searchUsers);
 router.get('/user', validateAll(userIdSchema, 'query'), mdAuth, usersController.getOne);
 router.post('/login', validateAll(loginSchema), usersController.login);
 

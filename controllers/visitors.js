@@ -19,28 +19,6 @@ export default {
     }
   },
 
-  //Función para actualizar un visitante
-  async update(req, res) {
-    const { id, gender, unit_price, visit_id } = req.body;
-
-    if (!['Taquilla'].includes(req.user.role)) {
-        return res.status(403).send({ message: 'Acceso denegado' });
-    }
-
-    try {
-      const [updated] = await Visitor.update(
-        { gender, unit_price, visit_id },
-        { where: { id } }
-      );
-      if (!updated) {
-        return res.status(404).send({ message: 'Visitante no encontrado' });
-      }
-      return res.status(200).send({ message: 'Visitante modificado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   // Función para contar los visitantes del día actual
   async getTodayCount(req, res) {
     try {
@@ -72,7 +50,7 @@ export default {
   },
 
   // Función para obtener los visitantes diarios en un rango de fechas
-  async getDailyVisitors(req, res) {
+  async getDailyVisitorsInDateRange(req, res) {
     try {
       const { from, to } = req.body;
       // Establecer las fechas de inicio y fin

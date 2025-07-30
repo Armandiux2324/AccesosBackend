@@ -15,68 +15,6 @@ export default {
     }
   },
 
-  // Función para actualizar pagos
-  async update(req, res) {
-    //Recibe el id, efectivo, tarjeta, cheque y total en el body
-    const { id, total, cash, card, payment_check } = req.body;
-
-    //Actualiza el pago con el id recibido
-    try {
-      const [updated] = await Payment.update(
-        { total, cash, card, payment_check },
-        { where: { id } }
-      );
-      if (!updated) {
-        return res.status(404).send({ message: 'Pago no encontrado' });
-      }
-      return res.status(200).send({ message: 'Pago actualizado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  // Función para eliminar pagos
-  async delete(req, res) {
-    //Recibe el id del pago a eliminar en la query
-    const { id } = req.query;
-
-    //Elimina el pago con el id recibido
-    try {
-      const deleted = await Payment.destroy({ where: { id } });
-      if (!deleted) {
-        return res.status(404).send({ message: 'Pago no encontrado' });
-      }
-      return res.status(200).send({ message: 'Pago eliminado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  // Función para obtener todos los pagos
-  async getAll(req, res) {
-    try {
-      const payments = await Payment.findAll();
-      return res.status(200).send({ data: payments });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  // Función para obtener un pago por ID
-  async getOne(req, res) {
-    const { id } = req.body;
-
-    try {
-      const payment = await Payment.findByPk(id);
-      if (!payment) {
-        return res.status(404).send({ message: 'Pago no encontrado' });
-      }
-      return res.status(200).send({ data: payment });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   // Funciones para obtener estadísticas de ventas
 
   //Función para obtener el total de ventas

@@ -89,7 +89,7 @@ export default {
   },
 
   // Función para obtener todas las visitas paginadas 
-  async getVisitsPaginated(req, res) {
+  async getAll(req, res) {
     try {
       // Obtener los parámetros de paginación
       const page = parseInt(req.query.page) || 1;
@@ -136,7 +136,7 @@ export default {
   },
 
   // Función para buscar visitas por fecha paginadas
-  async searchVisitsPaginated(req, res) {
+  async searchVisits(req, res) {
     try {
       const { date, page = '1', size = '20' } = req.query;
 

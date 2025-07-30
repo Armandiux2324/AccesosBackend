@@ -1,22 +1,6 @@
 import { Price } from '../models/index.js';
 
 export default {
-  // Función para el registro de precios
-  async save(req, res) {
-    const { type, price } = req.body;
-
-    // Verifica si el usuario tiene permisos para crear precios
-    if (!['Administrador', 'Directora'].includes(req.user.role)) {
-      return res.status(403).send({ message: 'No tienes permisos para realizar esta operación.' });
-    }
-
-    try {
-      await Price.create({ type, price });
-      return res.status(201).send({ message: 'Precio creado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
 
   // Función para actualizar todos los precios
   async updateMany(req, res) {
@@ -54,17 +38,4 @@ export default {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
   },
-
-  // Función para obtener un precio específico
-  async getOne(req, res) {
-    // Recibe el id del precio a obtener en la query
-    const { id } = req.query;
-
-    try {
-      const price = await Price.findByPk(id);
-      return res.status(200).send({ data: price });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  }
 };

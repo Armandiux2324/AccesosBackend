@@ -4,8 +4,6 @@ import paymentsController from '../controllers/payments.js';
 import { validateAll } from '../middlewares/validate.js';
 import {
   createPaymentSchema,
-  updatePaymentSchema,
-  getPaymentByDateSchema,
   paymentIdSchema
 } from '../validators/payments.validator.js';
 
@@ -14,10 +12,6 @@ const router = Router();
 
 // Definición de las rutas para los pagos
 router.post('/payments', mdAuth,  validateAll(createPaymentSchema), paymentsController.save);
-router.put('/payments', mdAuth, validateAll(updatePaymentSchema), paymentsController.update);
-router.get('/payments', mdAuth, paymentsController.getAll);
-router.get('/payment',  mdAuth, validateAll(paymentIdSchema), paymentsController.getOne);
-router.delete('/payments', mdAuth, validateAll(paymentIdSchema, 'query'), paymentsController.delete);
 
 // Rutas para obtener estadísticas de pagos
 router.get('/total-sales', mdAuth, paymentsController.getTotalSales);

@@ -204,7 +204,7 @@ export default {
     },
 
     // Función para buscar usuarios por nombre, nombre de usuario o email
-    async search(req, res) {
+    async searchUsers(req, res) {
         try {
             const { parameter, page = '1', size = '20' } = req.query;
 

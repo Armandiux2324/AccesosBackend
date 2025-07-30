@@ -14,8 +14,8 @@ const router = Router();
 // Definición de las rutas para las visitas
 router.post('/visits', mdAuth, validateAll(createVisitSchema), visitsController.save);
 router.put('/visits', mdAuth, validateAll(updateVisitSchema), visitsController.update);
-router.get('/search-visits',  mdAuth, visitsController.searchVisitsPaginated);
-router.get('/visits', mdAuth, visitsController.getVisitsPaginated);
+router.get('/search-visits',  mdAuth, visitsController.searchVisits);
+router.get('/visits', mdAuth, visitsController.getAll);
 router.get('/visit',  mdAuth, validateAll(idVisitSchema, 'query'), visitsController.getOne);
 router.delete('/visits', mdAuth, validateAll(idVisitSchema, 'query'), visitsController.delete);
 

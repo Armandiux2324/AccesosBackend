@@ -1,8 +1,8 @@
 CREATE TABLE users (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
-  username VARCHAR(100) NOT NULL,
-  email VARCHAR(100) NOT NULL,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role ENUM('Directora','Administrador','Taquilla') NOT NULL
 );
@@ -52,7 +52,6 @@ CREATE TABLE tickets (
 
 CREATE TABLE payments (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  reference VARCHAR(100) NULL,
   payment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   total FLOAT NOT NULL DEFAULT 0,
   cash FLOAT NOT NULL DEFAULT 0.0,
@@ -71,15 +70,14 @@ ALTER TABLE tickets
 
 CREATE TABLE prices (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  ALTER TABLE prices MODIFY COLUMN type ENUM('Niño','Adulto','Adulto mayor','Discapacitado','Estudiante') NOT NULL,
+  type VARCHAR(100) NOT NULL,
   price FLOAT NOT NULL
 );
 
 CREATE TABLE settings (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   capacity INT NOT NULL,
-  companion_discount FLOAT NOT NULL,
-  student_discount FLOAT NOT NULL
+  companion_discount FLOAT NOT NULL
 );
 
 CREATE TABLE refresh_tokens (
@@ -97,11 +95,13 @@ CREATE TABLE refresh_tokens (
     ON UPDATE CASCADE
 );
 
-CREATE EVENT IF NOT EXISTS ev_expire_visits
+CREATE EVENT ev_expire_visits
   ON SCHEDULE EVERY 1 HOUR
-  COMMENT 'Marca Inactivo y calcula duración 4h después de creación si aún no se cerró'
-  DO
-    UPDATE tickets t
+  ON COMPLETION PRESERVE
+  ENABLE
+  COMMENT 'Marca Inactivo y calcula duración 4h después de inicio si aún no se cerró'
+DO
+  UPDATE tickets t
   JOIN visits v ON v.id = t.visit_id
   SET
     t.status           = 'Inactivo',
@@ -109,7 +109,7 @@ CREATE EVENT IF NOT EXISTS ev_expire_visits
     v.duration_minutes = TIMESTAMPDIFF(MINUTE, v.datetime_begin, NOW())
   WHERE
     t.status = 'Activo'
-    AND v.datetime_begin <= NOW() - INTERVAL 4 HOUR
+    AND TIMESTAMPDIFF(HOUR, v.datetime_begin, NOW()) >= 4;
 
 DROP TRIGGER IF EXISTS trg_delete_payment_before_visit;
 DELIMITER //

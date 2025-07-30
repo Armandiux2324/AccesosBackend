@@ -6,13 +6,6 @@ export const createVisitorSchema = yup.object({
   visit_id: yup.number().positive('ID de la visita inválida').required('ID de la visita es obligatorio')
 });
 
-export const updateVisitorSchema = yup.object({
-  id: yup.number().positive('ID inválido').required('El campo ID es obligatorio'),
-  gender: yup.string().required('El género es obligatorio'),
-  price_id: yup.number().positive('ID del precio inválido').required('ID del precio es obligatorio'),
-  visit_id: yup.number().positive('ID de la visita inválida').required('ID de la visita es obligatorio')
-});
-
 export const idVisitorSchema = yup.object({
   id: yup.number().positive('ID inválido').required('El campo ID es obligatorio')
 });

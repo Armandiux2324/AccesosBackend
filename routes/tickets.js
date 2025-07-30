@@ -18,7 +18,6 @@ const mdUpload = multipart({ uploadDir: 'uploads/qr' });
 // Definición de las rutas para los tickets
 router.post('/tickets', mdAuth, mdUpload, validateAll(createTicketSchema), ticketsController.save);
 router.put('/tickets', mdAuth, validateAll(updateTicketSchema), ticketsController.update);
-router.get('/tickets', mdAuth, ticketsController.getAll);
 router.get('/active-visitors', mdAuth, ticketsController.getActiveVisitorsCount);
 router.get('/scan', mdAuth, ticketsController.scan); // Ruta para escanear tickets
 router.put('/ticket-status', mdAuth, validateAll(updateStatusSchema), ticketsController.updateStatus);
