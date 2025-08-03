@@ -9,7 +9,7 @@ export default class User extends Model {
       username:  { type: DataTypes.STRING(100), allowNull: false, unique: true },
       email:     { type: DataTypes.STRING(100), allowNull: false },
       password:  { type: DataTypes.STRING(255), allowNull: false },
-      role:      { type: DataTypes.ENUM('Directora','Administrador','Taquilla'), allowNull: false }
+      role:      { type: DataTypes.ENUM('Director','Administrador','Taquilla'), allowNull: false }
     }, {
       sequelize,
       modelName: 'User',

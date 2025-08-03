@@ -63,7 +63,7 @@ export default {
         const { id, newPass, confPass } = req.body;
 
         // Validar que el usuario tenga permisos para cambiar la contraseña
-        if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        if (!['Administrador', 'Director'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
 
@@ -93,7 +93,7 @@ export default {
         const { name, username, email, password, role } = req.body;
 
         // Validar que el usuario tenga permisos para crear usuarios
-        if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        if (!['Administrador', 'Director'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
 
@@ -107,12 +107,11 @@ export default {
         }
     },
 
-
     // Función para actualizar un usuario
     async update(req, res) {
         const { id, name, username, email, role } = req.body;
 
-        if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        if (!['Administrador', 'Director'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
 
@@ -135,7 +134,7 @@ export default {
         // Recibe el ID del usuario a eliminar desde la query
         const { id } = req.query;
 
-        if (!['Administrador', 'Directora'].includes(req.user.role)) {
+        if (!['Administrador', 'Director'].includes(req.user.role)) {
             return res.status(403).send({ message: 'Acceso denegado' });
         }
 
@@ -158,7 +157,7 @@ export default {
             const size = parseInt(req.query.size, 10) || 20;
             const offset = (page - 1) * size;
 
-            if (!['Administrador', 'Directora'].includes(req.user.role)) {
+            if (!['Administrador', 'Director'].includes(req.user.role)) {
                 return res.status(403).send({ message: 'Acceso denegado' });
             }
 

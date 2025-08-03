@@ -15,24 +15,6 @@ export default {
     }
   },
 
-  // Función para actualizar una visita
-  async update(req, res) {
-    const { id, contact, school, township, datetime_begin, datetime_end, duration_minutes } = req.body;
-
-    try {
-      const [updated] = await Visit.update(
-        { contact, school, township, datetime_begin, datetime_end, duration_minutes },
-        { where: { id } }
-      );
-      if (!updated) {
-        return res.status(404).send({ message: 'Visita no encontrada' });
-      }
-      return res.status(200).send({ message: 'Visita actualizada' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   // Función para eliminar una visita
   async delete(req, res) {
     const { id } = req.query;

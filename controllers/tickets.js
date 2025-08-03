@@ -35,52 +35,6 @@ export default {
     }
   },
 
-  // Función para actualizar tickets
-  async update(req, res) {
-    // Recibe el id, visit_id y payment_id en el body
-    const { id, visit_id, payment_id } = req.body;
-
-    try {
-      const [updated] = await Ticket.update(
-        { visit_id, payment_id },
-        { where: { id } }
-      );
-      if (!updated) {
-        return res.status(404).send({ message: 'Ticket no encontrado' });
-      }
-      return res.status(200).send({ message: 'Ticket actualizado' });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
-  // Función para obtener el conteo de visitantes activos
-  async getActiveVisitorsCount(req, res) {
-    try {
-      // Busca tickets activos y obtiene los visit_id
-      const activeTickets = await Ticket.findAll({
-        where: { status: 'Activo' },
-        attributes: ['visit_id']
-      });
-      const visitIds = activeTickets.map(t => t.visit_id);
-
-      if (visitIds.length === 0) {
-        return res.status(200).send({ count: 0 });
-      }
-
-      // Cuenta los visitantes asociados a esos visit_id
-      const count = await Visitor.count({
-        where: {
-          visit_id: { [Op.in]: visitIds }
-        }
-      });
-
-      return res.status(200).send({ count });
-    } catch (err) {
-      return res.status(500).send({ message: 'Intenta más tarde' });
-    }
-  },
-
   // Función para actualizar el estado de un ticket
   async updateStatus(req, res) {
     const { id, status } = req.body;

@@ -18,6 +18,7 @@ router.get('/visitors-by-gender',  mdAuth, visitorsController.getVisitorsByGende
 router.post('/date-range-visitors',  mdAuth, visitorsController.getDailyVisitorsInDateRange);
 router.get('/visitors-by-township',  mdAuth, visitorsController.getVisitorsByTownship);
 router.get('/today-visitors',  mdAuth, visitorsController.getTodayCount);
+router.get('/active-visitors', mdAuth, visitorsController.getActiveVisitorsCount);
 
 export default router;
 

@@ -1,4 +1,4 @@
-import { Visitor, Visit, Price } from '../models/index.js';
+import { Visitor, Visit, Price, Ticket } from '../models/index.js';
 import { Op, fn, col, literal } from 'sequelize';
 
 export default {
@@ -195,4 +195,31 @@ export default {
       return res.status(500).send({ message: 'Error obteniendo visitantes por municipio' });
     }
   },
+
+    // Función para obtener el conteo de visitantes activos
+    async getActiveVisitorsCount(req, res) {
+      try {
+        // Busca tickets activos y obtiene los visit_id
+        const activeTickets = await Ticket.findAll({
+          where: { status: 'Activo' },
+          attributes: ['visit_id']
+        });
+        const visitIds = activeTickets.map(t => t.visit_id);
+  
+        if (visitIds.length === 0) {
+          return res.status(200).send({ count: 0 });
+        }
+  
+        // Cuenta los visitantes asociados a esos visit_id
+        const count = await Visitor.count({
+          where: {
+            visit_id: { [Op.in]: visitIds }
+          }
+        });
+  
+        return res.status(200).send({ count });
+      } catch (err) {
+        return res.status(500).send({ message: 'Intenta más tarde' });
+      }
+    },
 };

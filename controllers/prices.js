@@ -5,7 +5,7 @@ export default {
   // Función para actualizar todos los precios
   async updateMany(req, res) {
     const { updates } = req.body;
-    if (!['Administrador', 'Directora'].includes(req.user.role)) {
+    if (!['Administrador', 'Director'].includes(req.user.role)) {
       return res.status(403).send({ message: 'No tienes permisos.' });
     }
     // Verifica que se envíe una lista de actualizaciones
