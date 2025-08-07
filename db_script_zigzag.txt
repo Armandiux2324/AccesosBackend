@@ -56,7 +56,8 @@ CREATE TABLE payments (
   total FLOAT NOT NULL DEFAULT 0,
   cash FLOAT NOT NULL DEFAULT 0.0,
   card FLOAT NOT NULL DEFAULT 0.0,
-  payment_check FLOAT NOT NULL DEFAULT 0.0
+  payment_check FLOAT NOT NULL DEFAULT 0.0,
+  total_discount FLOAT NOT NULL DEFAULT 0.0
 );
 
 ALTER TABLE tickets

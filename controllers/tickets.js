@@ -13,6 +13,7 @@ export default {
       // Crear el ticket
       const ticket = await Ticket.create({ visit_id, payment_id });
       const qrContent = `${ticket.id}`;
+      const qrType    = 'taquilla';
 
       // Ruta y nombre de archivo
       const filename = `qr_ticket_${ticket.id}.png`;
@@ -29,7 +30,14 @@ export default {
       ticket.qr = filename;
       await ticket.save();
 
-      return res.status(200).send({ message: 'Ticket creado' });
+      return res.status(200).send({ 
+        message: 'Ticket creado',
+         ticket: {
+          id:   ticket.id,
+          qr:   filename,
+          type: qrType
+        }
+      });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
     }
@@ -140,12 +148,18 @@ export default {
           },
           { where: { id: ticket.visit_id } }
         );
+        return res.status(200).send({
+          ticketId:      ticket.id,
+          newStatus,
+          type: 'Taquilla'
+        });
       }
 
       return res.status(200).send({
         ticketId:      ticket.id,
         visitorsCount,
-        newStatus
+        newStatus,
+        type: 'Taquilla'
       });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });

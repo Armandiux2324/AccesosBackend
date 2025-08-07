@@ -10,6 +10,7 @@ export default class Payment extends Model {
       cash:       { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
       card:       { type: DataTypes.FLOAT, allowNull: false, defaultValue:  0.0 },
       payment_check: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
+      total_discount: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.0 },
     }, {
       sequelize,
       modelName: 'Payment',

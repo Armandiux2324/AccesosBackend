@@ -66,7 +66,7 @@ export default {
           where: {
             [Op.and]: [
               { created_at: { [Op.between]: [startDate, endDate] } },
-              literal('WEEKDAY(created_at) NOT IN (0,6)')
+              literal('WEEKDAY(created_at) NOT IN (0)')
             ]
           },
           attributes: []

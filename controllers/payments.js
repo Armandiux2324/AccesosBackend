@@ -5,10 +5,10 @@ export default {
   // Función para crear pagos
   async save(req, res) {
     //Recibe el efectivo, tarjeta y cheque y el total en el body
-    const { total, cash, card, payment_check } = req.body;
+    const { total, cash, card, payment_check, total_discount } = req.body;
 
     try {
-      const payment = await Payment.create({ total, cash, card, payment_check });
+      const payment = await Payment.create({ total, cash, card, payment_check, total_discount });
       return res.status(201).send({ message: 'Pago agregado', data: payment });
     } catch (err) {
       return res.status(500).send({ message: 'Intenta más tarde' });
@@ -16,7 +16,6 @@ export default {
   },
 
   // Funciones para obtener estadísticas de ventas
-
   //Función para obtener el total de ventas
   async getTotalSales(req, res) {
     try {
@@ -102,7 +101,7 @@ export default {
             [Op.and]: [
               { payment_date: { [Op.gte]: dayStart } },
               { payment_date: { [Op.lt]: dayEnd } },
-              literal('WEEKDAY(payment_date) NOT IN (0,6)')
+              literal('WEEKDAY(payment_date) NOT IN (0)')
             ]
           }
         });
